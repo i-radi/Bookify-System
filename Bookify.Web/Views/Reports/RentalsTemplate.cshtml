@@ -1,0 +1,39 @@
+﻿@model IEnumerable<RentalCopy>
+
+@{
+    Layout = "_ReportsLayout";
+}
+
+<table id="data">
+    <thead>
+        <tr>
+            <th>Subscriber ID</th>
+            <th>Subscriber Name</th>
+            <th>Subscriber Phone</th>
+            <th>Book Title</th>
+            <th>Book Author</th>
+            <th>Book Serial</th>
+            <th>Rental Date</th>
+            <th>End Date</th>
+            <th>Return Date</th>
+            <th>Extended On</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var copy in Model)
+        {
+            <tr>
+                <td>@copy.Rental!.Subscriber!.Id</td>
+                <td>@($"{copy.Rental!.Subscriber!.FirstName} {copy.Rental!.Subscriber!.LastName}")</td>
+                <td>@copy.Rental!.Subscriber!.MobileNumber</td>
+                <td>@copy.BookCopy!.Book!.Title</td>
+                <td>@copy.BookCopy!.Book!.Author!.Name</td>
+                <td>@copy.BookCopy!.SerialNumber</td>
+                <td>@copy.RentalDate.ToString("d MMM, yyyy")</td>
+                <td>@copy.EndDate.ToString("d MMM, yyyy")</td>
+                <td>@copy.ReturnDate?.ToString("d MMM, yyyy")</td>
+                <td>@copy.ExtendedOn?.ToString("d MMM, yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

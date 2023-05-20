@@ -1,0 +1,52 @@
+﻿@using System.Drawing;
+
+@inject IWebHostEnvironment webHostEnvironment;
+
+@{
+    using Image image = Image.FromFile($"{webHostEnvironment.WebRootPath}/assets/images/Logo.png");
+
+    using MemoryStream ms = new MemoryStream();
+
+    image.Save(ms, image.RawFormat);
+
+    var imageSrc = Convert.ToBase64String(ms.ToArray());
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #data {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+        }
+
+        #data td, #data th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #data tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #data th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #000;
+            color: white;
+        }
+
+        #Logo {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <img src="data:image/png;base64,@imageSrc" id="Logo" />
+    @RenderBody()
+</body>
+</html>

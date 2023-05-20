@@ -1,0 +1,5 @@
+https://learn.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-7.0
+
+https://www.regextester.com/104028
+
+https://regex101.com/

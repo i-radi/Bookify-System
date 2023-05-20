@@ -1,0 +1,30 @@
+﻿@model BookCopyViewModel
+
+<div class="js-copy-container">
+    <!--begin::Item-->
+    <div class="d-flex flex-stack">
+        <input type="hidden" value="@Model.SerialNumber" data-book-id="@Model.BookId" class="js-copy" />
+        <!--begin::Symbol-->
+        <div class="symbol symbol-40px me-5">
+            <img src="@Model.BookThumbnailUrl" class="h-50 align-self-center" alt="@Model.BookTitle">
+        </div>
+        <!--end::Symbol-->
+        <!--begin::Section-->
+        <div class="d-flex align-items-center flex-row-fluid flex-wrap">
+            <!--begin:Author-->
+            <div class="flex-grow-1 me-2">
+                <h4 class="text-gray-800 text-hover-primary fs-6 fw-bold">@Model.BookTitle</h4>
+                <span class="text-muted fw-semibold d-block fs-7">Edition# @Model.EditionNumber</span>
+            </div>
+            <!--end:Author-->
+            <!--begin:Action-->
+            <a href="javascript:;" class="btn btn-sm btn-light-danger fs-8 fw-bold js-remove">Remove</a>
+            <!--end:Action-->
+        </div>
+        <!--end::Section-->
+    </div>
+    <!--end::Item-->
+    <!--begin::Separator-->
+    <div class="separator separator-dashed my-4"></div>
+    <!--end::Separator-->
+</div>

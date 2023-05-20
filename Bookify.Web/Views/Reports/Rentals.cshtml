@@ -1,0 +1,105 @@
+﻿@model RentalsReportViewModel
+
+@{
+    ViewData["Title"] = "Rentals Report";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form asp-controller="Reports" method="get" id="Filters" class="js-excluded-validation">
+            <input type="hidden" id="PageNumber" name="PageNumber" value="1" />
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-5">
+                        <label asp-for="Duration"></label>
+                        <input type="text" class="form-control form-control-solid js-date-range" asp-for="Duration" autocomplete="off" />
+                        <span asp-validation-for="Duration" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Show Report</button>
+        </form>
+    </div>
+</div>
+
+@if (Model.Rentals is not null)
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>Rentals</span>
+            </div>
+            @if (Model.Rentals.Any())
+            {
+                <div class="card-toolbar gap-3">
+                    <a class="btn btn-light-success" asp-action="ExportRentalsToExcel"
+                       asp-route-duration="@Context.Request.Query["Duration"]">
+                        <i class="bi bi-file-earmark-excel-fill"></i>
+                        Export to Excel
+                    </a>
+
+                    <a class="btn btn-light-danger" asp-action="ExportRentalsToPDF"
+                       asp-route-duration="@Context.Request.Query["Duration"]">
+                        <i class="bi bi-filetype-pdf"></i>
+                        Export to PDF
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="card-body">
+            @if (Model.Rentals.TotalPages > 1)
+            {
+                <partial name="_Pagination" model="new PaginationViewModel { PageNumber = Model.Rentals.PageNumber, TotalPages = Model.Rentals.TotalPages }" />
+            }
+
+            @if (Model.Rentals.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-row-dashed table-row-gray-300 gy-2 align-middle">
+                        <thead>
+                            <tr class="fw-bold fs-6 text-white bg-black">
+                                <th class="ps-2">Subscriber ID</th>
+                                <th>Subscriber Name</th>
+                                <th>Subscriber Phone</th>
+                                <th>Book Title</th>
+                                <th>Book Author</th>
+                                <th>Book Serial</th>
+                                <th>Rental Date</th>
+                                <th>End Date</th>
+                                <th>Return Date</th>
+                                <th>Extended On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var copy in Model.Rentals)
+                            {
+                                <tr>
+                                    <td>@copy.Rental!.Subscriber!.Id</td>
+                                    <td>@($"{copy.Rental!.Subscriber!.FirstName} {copy.Rental!.Subscriber!.LastName}")</td>
+                                    <td>@copy.Rental!.Subscriber!.MobileNumber</td>
+                                    <td>@copy.BookCopy!.Book!.Title</td>
+                                    <td>@copy.BookCopy!.Book!.Author!.Name</td>
+                                    <td>@copy.BookCopy!.SerialNumber</td>
+                                    <td>@copy.RentalDate.ToString("d MMM, yyyy")</td>
+                                    <td>@copy.EndDate.ToString("d MMM, yyyy")</td>
+                                    <td>@copy.ReturnDate?.ToString("d MMM, yyyy")</td>
+                                    <td>@copy.ExtendedOn?.ToString("d MMM, yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <h5>No rentals were found!</h5>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/reports.js" asp-append-version="true"></script>
+}

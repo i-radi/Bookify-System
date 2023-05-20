@@ -1,0 +1,40 @@
+﻿@model SubscriberSearchResultViewModel
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        @if (Model is null)
+        {
+            <!--begin::Alert-->
+            <div class="alert bg-light-warning border border-warning border-3 border-dashed d-flex flex-column flex-sm-row w-100 p-5">
+                <!--begin::Wrapper-->
+                <div class="d-flex flex-column pe-0 pe-sm-10">
+                    <!--begin::Content-->
+                    <span>No Subscribers were found!</span>
+                    <!--end::Content-->
+                    <a asp-action="Create" class="btn btn-primary mt-5">Add Subscriber</a>
+                </div>
+                <!--end::Wrapper-->
+            </div>
+            <!--end::Alert-->
+        }
+        else
+        {
+            <div class="d-flex justify-content-between">
+                <div class="d-flex flex-column justify-content-center">
+                    <h4>@Model.FullName</h4>
+                    <div class="mt-3">
+                        <a class="btn btn-primary" asp-action="Details" asp-route-id="@Model.Key">
+                            Details
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="symbol symbol-100px">
+                        <img src="@Model.ImageThumbnailUrl" alt="" />
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

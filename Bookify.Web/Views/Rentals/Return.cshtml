@@ -1,0 +1,150 @@
+﻿@model RentalReturnFormViewModel
+
+@{
+    ViewData["Title"] = "Rental Return";
+}
+
+@if(Model.Copies.All(c => c.ReturnDate.HasValue))
+{
+    <div class="alert bg-light-info border border-info border-3 border-dashed d-flex flex-column flex-sm-row w-100 p-5 mt-10">
+        <!--begin::Icon-->
+        <!--begin::Svg Icon | path: icons/duotune/general/gen007.svg-->
+        <span class="svg-icon svg-icon-2hx svg-icon-info me-4 mb-5 mb-sm-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.3" d="M12 22C13.6569 22 15 20.6569 15 19C15 17.3431 13.6569 16 12 16C10.3431 16 9 17.3431 9 19C9 20.6569 10.3431 22 12 22Z" fill="currentColor"></path>
+                <path d="M19 15V18C19 18.6 18.6 19 18 19H6C5.4 19 5 18.6 5 18V15C6.1 15 7 14.1 7 13V10C7 7.6 8.7 5.6 11 5.1V3C11 2.4 11.4 2 12 2C12.6 2 13 2.4 13 3V5.1C15.3 5.6 17 7.6 17 10V13C17 14.1 17.9 15 19 15ZM11 10C11 9.4 11.4 9 12 9C12.6 9 13 8.6 13 8C13 7.4 12.6 7 12 7C10.3 7 9 8.3 9 10C9 10.6 9.4 11 10 11C10.6 11 11 10.6 11 10Z" fill="currentColor"></path>
+            </svg>
+        </span>
+        <!--end::Svg Icon-->
+        <!--end::Icon-->
+        <!--begin::Content-->
+        <div class="d-flex flex-column pe-0 pe-sm-10 justify-content-center">
+            <h5 class="mb-0">All copies have been returned.</h5>
+        </div>
+        <!--end::Content-->
+    </div>
+}
+else
+{
+    <form asp-controller="Rentals">
+        <div class="card pt-4 mb-6 mb-xl-9">
+            <!--begin::Card header-->
+            <div class="card-header border-0 pt-5">
+                <h3 class="card-title align-items-start flex-column">
+                    <span class="card-label fw-bold fs-3 mb-1">Books</span>
+                </h3>
+            </div>
+            <!--end::Card header-->
+            <!--begin::Card body-->
+            <div class="card-body pt-0 pb-5">
+                <div class="table-responsive">
+                    <!--begin::Table-->
+                    <table class="table align-middle gs-0 gy-4">
+                        <!--begin::Table head-->
+                        <thead>
+                            <tr class="fw-bold text-muted bg-light">
+                                <th class="ps-4 min-w-125px rounded-start">Book</th>
+                                <th class="min-w-125px">Start Date</th>
+                                <th class="min-w-125px">End Date</th>
+                                <th class="min-w-150px">Total Delay (Days)</th>
+                                <th class="min-w-150px">Return Date</th>
+                                <th class="min-w-150px">Extend Date</th>
+                                <th class="min-w-150px">Return</th>
+                                <th class="pe-4 min-w-150px rounded-end">Extend</th>
+                            </tr>
+                        </thead>
+                        <!--end::Table head-->
+                        <!--begin::Table body-->
+                        <tbody>
+                            @for (var i = 0; i < Model.Copies.Count; i++)
+                            {
+                                var copy = Model.Copies[i];
+
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center ps-3">
+                                            <!--begin::Symbol-->
+                                            <div class="symbol symbol-40px me-5">
+                                                <img src="@copy.BookCopy?.BookThumbnailUrl" class="h-50 align-self-center" alt="@copy.BookCopy?.BookTitle">
+                                            </div>
+                                            <!--end::Symbol-->
+                                            <div class="d-flex align-items-center flex-row-fluid flex-wrap">
+                                                <!--begin:Author-->
+                                                <div class="flex-grow-1 me-2">
+                                                    <h4 class="text-gray-800 text-hover-primary fs-6 fw-bold">@copy.BookCopy?.BookTitle</h4>
+                                                    <span class="text-muted fw-semibold d-block fs-7">Edition# @copy.BookCopy?.EditionNumber</span>
+                                                </div>
+                                                <!--end:Author-->
+                                            </div>
+                                            <!--end::Section-->
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @copy.RentalDate.ToString("d MMM, yyyy")
+                                    </td>
+                                    <td>
+                                        @copy.EndDate.ToString("d MMM, yyyy")
+                                    </td>
+                                    <td class="@(copy.DelayInDays > 0 ? "text-danger" : string.Empty)">
+                                        @copy.DelayInDays Day(s)
+                                    </td>
+                                    <td>
+                                        @copy.ReturnDate?.ToString("d MMM, yyyy")
+                                    </td>
+                                    <td>
+                                        @copy.ExtendedOn?.ToString("d MMM, yyyy")
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-check-custom form-check-success form-check-solid">
+                                            <input class="form-check-input" type="radio" value="true" asp-for="@Model.SelectedCopies[i].IsReturned" id="@($"{Model.SelectedCopies[i].Id}_true")" />
+                                            <input type="hidden" asp-for="@Model.SelectedCopies[i].Id" id="@($"{Model.SelectedCopies[i].Id}_true_id")" />
+                                            <label class="form-check-label" for="@($"{Model.SelectedCopies[i].Id}_true")"></label>
+                                        </div>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="form-check form-check-custom form-check-solid">
+                                            <input class="form-check-input" type="radio" value="false" asp-for="@Model.SelectedCopies[i].IsReturned" id="@($"{Model.SelectedCopies[i].Id}_false")"
+                                           disabled="@(Model.AllowExtend ? null : "disabled")" />
+                                            <input type="hidden" asp-for="@Model.SelectedCopies[i].Id" id="@($"{Model.SelectedCopies[i].Id}_false_id")" />
+                                            <label class="form-check-label" for="@($"{Model.SelectedCopies[i].Id}_false")"></label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <!--end::Table body-->
+                    </table>
+                    <!--end::Table-->
+                </div>
+                @if(Model.TotalDelayInDays > 0)
+                {
+                    <div class="ps-4">
+                        <div class="form-check form-check-custom form-check-solid me-10">
+                            <input type="hidden" asp-for="TotalDelayInDays" />
+                            <input class="form-check-input" type="checkbox" asp-for="PenaltyPaid" />
+                            <label class="form-check-label" asp-for="PenaltyPaid"></label>
+                        </div>
+                    </div>
+                }
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
+            <!--end::Card body-->
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">
+                    <span class="indicator-label">
+                        Save
+                    </span>
+                    <span class="indicator-progress">
+                        Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </form>
+
+}
+
+@section Scripts
+    {
+    <partial name="_ValidationScriptsPartial" />
+}

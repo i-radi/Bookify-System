@@ -1,0 +1,113 @@
+﻿@model IEnumerable<CopyHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Rental History";
+}
+
+@if (!Model.Any())
+{
+    <div class="alert bg-light-info border border-info border-3 border-dashed d-flex flex-column flex-sm-row w-100 p-5 mt-10">
+        <!--begin::Icon-->
+        <!--begin::Svg Icon | path: icons/duotune/general/gen007.svg-->
+        <span class="svg-icon svg-icon-2hx svg-icon-info me-4 mb-5 mb-sm-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.3" d="M12 22C13.6569 22 15 20.6569 15 19C15 17.3431 13.6569 16 12 16C10.3431 16 9 17.3431 9 19C9 20.6569 10.3431 22 12 22Z" fill="currentColor"></path>
+                <path d="M19 15V18C19 18.6 18.6 19 18 19H6C5.4 19 5 18.6 5 18V15C6.1 15 7 14.1 7 13V10C7 7.6 8.7 5.6 11 5.1V3C11 2.4 11.4 2 12 2C12.6 2 13 2.4 13 3V5.1C15.3 5.6 17 7.6 17 10V13C17 14.1 17.9 15 19 15ZM11 10C11 9.4 11.4 9 12 9C12.6 9 13 8.6 13 8C13 7.4 12.6 7 12 7C10.3 7 9 8.3 9 10C9 10.6 9.4 11 10 11C10.6 11 11 10.6 11 10Z" fill="currentColor"></path>
+            </svg>
+        </span>
+        <!--end::Svg Icon-->
+        <!--end::Icon-->
+        <!--begin::Content-->
+        <div class="d-flex flex-column pe-0 pe-sm-10 justify-content-center">
+            <h5 class="mb-0">No rental history form this copy.</h5>
+        </div>
+        <!--end::Content-->
+    </div>
+}
+else
+{
+    <div class="alert bg-light-primary border border-primary border-3 border-dashed d-flex justify-content-between w-100 p-5 mb-10">
+        <div class="d-flex align-items-center">
+            <div class="symbol symbol-40px me-4">
+                <div class="symbol-label fs-2 fw-semibold text-success">
+                    <!--begin::Svg Icon | path: icons/duotune/general/gen002.svg-->
+                    <span class="svg-icon svg-icon-2 svg-icon-primary">
+                        <svg width="14" height="21" viewBox="0 0 14 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path opacity="0.3" d="M12 6.20001V1.20001H2V6.20001C2 6.50001 2.1 6.70001 2.3 6.90001L5.6 10.2L2.3 13.5C2.1 13.7 2 13.9 2 14.2V19.2H12V14.2C12 13.9 11.9 13.7 11.7 13.5L8.4 10.2L11.7 6.90001C11.9 6.70001 12 6.50001 12 6.20001Z" fill="currentColor" />
+                            <path d="M13 2.20001H1C0.4 2.20001 0 1.80001 0 1.20001C0 0.600012 0.4 0.200012 1 0.200012H13C13.6 0.200012 14 0.600012 14 1.20001C14 1.80001 13.6 2.20001 13 2.20001ZM13 18.2H10V16.2L7.7 13.9C7.3 13.5 6.7 13.5 6.3 13.9L4 16.2V18.2H1C0.4 18.2 0 18.6 0 19.2C0 19.8 0.4 20.2 1 20.2H13C13.6 20.2 14 19.8 14 19.2C14 18.6 13.6 18.2 13 18.2ZM4.4 6.20001L6.3 8.10001C6.7 8.50001 7.3 8.50001 7.7 8.10001L9.6 6.20001H4.4Z" fill="currentColor" />
+                        </svg>
+                    </span>
+                    <!--end::Svg Icon-->
+                </div>
+            </div>
+            <!--begin::Content-->
+            <div class="d-flex flex-column pe-0 pe-sm-10">
+                <h5 class="mb-1">Rental History</h5>
+            </div>
+            <!--end::Content-->
+        </div>
+    </div>
+
+    <div class="card pt-4 mb-6 mb-xl-9">
+        <!--begin::Card header-->
+        <div class="card-header border-0 pt-5">
+            <h3 class="card-title align-items-start flex-column">
+                <span class="card-label fw-bold fs-3 mb-1">Books</span>
+            </h3>
+        </div>
+        <!--end::Card header-->
+        <!--begin::Card body-->
+        <div class="card-body pt-0 pb-5">
+            <div class="table-responsive">
+                <!--begin::Table-->
+                <table class="table align-middle gs-0 gy-4">
+                    <!--begin::Table head-->
+                    <thead>
+                        <tr class="fw-bold text-muted bg-light">
+                            <th class="ps-4 min-w-125px rounded-start">Subscriber</th>
+                            <th class="min-w-125px">Subscriber Mobile</th>
+                            <th class="min-w-125px">Start Date</th>
+                            <th class="min-w-125px">End Date</th>
+                            <th class="min-w-150px">Total Delay (Days)</th>
+                            <th class="min-w-150px">Return Date</th>
+                            <th class="pe-4 min-w-150px text-end rounded-end">Extend Date</th>
+                        </tr>
+                    </thead>
+                    <!--end::Table head-->
+                    <!--begin::Table body-->
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-bold">@item.SubscriberName</span>
+                                </td>
+                                <td>
+                                    @item.SubscriberMobile
+                                </td>
+                                <td>
+                                    @item.RentalDate.ToString("d MMM, yyyy")
+                                </td>
+                                <td>
+                                    @item.EndDate.ToString("d MMM, yyyy")
+                                </td>
+                                <td class="@(item.DelayInDays > 0 ? "text-danger" : string.Empty)">
+                                    @item.DelayInDays Day(s)
+                                </td>
+                                <td class="pe-4">
+                                    @item.ReturnDate?.ToString("d MMM, yyyy")
+                                </td>
+                                <td class="text-end pe-4">
+                                    @item.ExtendedOn?.ToString("d MMM, yyyy")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <!--end::Table body-->
+                </table>
+                <!--end::Table-->
+            </div>
+        </div>
+        <!--end::Card body-->
+    </div>
+}

@@ -1,0 +1,117 @@
+﻿@model BooksReportViewModel
+
+@{
+    ViewData["Title"] = "Books Report";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form asp-controller="Reports" method="get" id="Filters" class="js-excluded-validation">
+            <input type="hidden" id="PageNumber" name="PageNumber" value="1" />
+            <div class="row">
+                <div class="col">
+                    <div class="mb-5">
+                        <div class="form-floating mb-2">
+                            <select class="form-select form-select-solid js-select2" data-placeholder="Select authors" asp-for="SelectedAuthors" asp-items="@Model.Authors">
+                                <option value="">Select authors</option>
+                            </select>
+                            <label asp-for="SelectedAuthors"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-5">
+                        <div class="form-floating mb-2">
+                            <select class="form-select form-select-solid js-select2" data-placeholder="Select categories" asp-for="SelectedCategories" asp-items="@Model.Categories">
+                                <option value="">Select categories</option>
+                            </select>
+                            <label asp-for="SelectedCategories"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Show Report</button>
+        </form>
+    </div>
+</div>
+
+@if (Model.Books is not null)
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <span>Books</span>
+            </div>
+            @if(Model.Books.Any())
+            {
+                <div class="card-toolbar gap-3">
+                    <a class="btn btn-light-success" asp-action="ExportBooksToExcel" 
+                            asp-route-authors="@Context.Request.Query["SelectedAuthors"]"
+                               asp-route-categories="@Context.Request.Query["SelectedCategories"]">
+                        <i class="bi bi-file-earmark-excel-fill"></i>
+                        Export to Excel
+                    </a>
+
+                    <a class="btn btn-light-danger" asp-action="ExportBooksToPDF"
+                       asp-route-authors="@Context.Request.Query["SelectedAuthors"]"
+                       asp-route-categories="@Context.Request.Query["SelectedCategories"]">
+                        <i class="bi bi-filetype-pdf"></i>
+                        Export to PDF
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="card-body">
+            @if (Model.Books.TotalPages > 1)
+            {
+                <partial name="_Pagination" model="new PaginationViewModel { PageNumber = Model.Books.PageNumber, TotalPages = Model.Books.TotalPages }" />
+            }
+
+            @if (Model.Books.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-row-dashed table-row-gray-300 gy-2 align-middle">
+                        <thead>
+                            <tr class="fw-bold fs-6 text-white bg-black">
+                                <th class="ps-2">Title</th>
+                                <th>Author</th>
+                                <th>Categories</th>
+                                <th>Publisher</th>
+                                <th>Publishing Date</th>
+                                <th>Hall</th>
+                                <th>Available for rental</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var book in Model.Books)
+                            {
+                                <tr>
+                                    <td>@book.Title</td>
+                                    <td>@book.Author!.Name</td>
+                                    <td>@(string.Join(", ", book.Categories!.Select(c => c.Category!.Name)))</td>
+                                    <td>@book.Publisher</td>
+                                    <td>@book.PublishingDate.ToString("d MMM, yyyy")</td>
+                                    <td>@book.Hall</td>
+                                    <td>@(book.IsAvailableForRental ? "Yes" : "No")</td>
+                                    <td>@(book.IsDeleted ? "Deleted" : "Available")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <h5>No books were found!</h5>
+            }
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <script src="~/js/reports.js" asp-append-version="true"></script>
+}

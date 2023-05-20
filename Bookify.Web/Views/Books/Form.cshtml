@@ -1,0 +1,163 @@
+﻿@model BookFormViewModel
+
+@{
+    ViewData["Title"] = "Book Form";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">@(Model.Id.Equals(0) ? "Add" : "Edit") Book</h3>
+    </div>
+    <div class="card-body">
+        <form method="post" asp-controller="Books" enctype="multipart/form-data" id="Form">
+            @if (Model.Id > 0)
+            {
+                <input type="hidden" asp-for="Id" />
+            }
+            <div class="mb-10">
+                <!--begin::Image input-->
+                <div class="image-input image-input-empty" data-kt-image-input="true" style="background-image: url(@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/image-placeholder.jpg" : Model.ImageThumbnailUrl))">
+                    <!--begin::Image preview wrapper-->
+                    <div class="image-input-wrapper w-125px h-200px"></div>
+                    <!--end::Image preview wrapper-->
+                    <!--begin::Edit button-->
+                    <label class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
+                           data-kt-image-input-action="change"
+                           data-bs-dismiss="click">
+                        <i class="bi bi-pencil-fill fs-7"></i>
+
+                        <!--begin::Inputs-->
+                        <input type="file" asp-for="Image" accept=".png, .jpg, .jpeg" />
+                        <input type="hidden" name="avatar_remove" />
+                        <!--end::Inputs-->
+                    </label>
+                    <!--end::Edit button-->
+                    <!--begin::Cancel button-->
+                    <span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
+                          data-kt-image-input-action="cancel"
+                          data-bs-dismiss="click">
+                        <i class="bi bi-x fs-2"></i>
+                    </span>
+                    <!--end::Cancel button-->
+                    <!--begin::Remove button-->
+                    <span class="btn btn-icon btn-circle btn-color-muted btn-active-color-primary w-25px h-25px bg-body shadow"
+                          data-kt-image-input-action="remove"
+                          data-bs-dismiss="click">
+                        <i class="bi bi-x fs-2"></i>
+                    </span>
+                    <!--end::Remove button-->
+                </div>
+                <div class="form-text">Allowed file types: png, jpg, jpeg and cannot be more that 2 MB</div>
+                <span asp-validation-for="Image" class="text-danger d-block"></span>
+                <!--end::Image input-->
+            </div>
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control form-control-solid" placeholder="Title" asp-for="Title" />
+                                    <label asp-for="Title"></label>
+                                </div>
+                                <span asp-validation-for="Title" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="form-floating mb-2">
+                                    <select class="form-select form-select-solid js-select2" data-placeholder="Select an author" asp-for="AuthorId" asp-items="@Model.Authors">
+                                        <option value="">Select an author</option>
+                                    </select>
+                                    <label asp-for="AuthorId"></label>
+                                </div>
+                                <span asp-validation-for="AuthorId" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="mb-2">
+                                    <select class="form-select form-select-solid js-select2" data-placeholder="Select categories" asp-for="SelectedCategories" asp-items="@Model.Categories">
+                                        <option>Select categories</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="SelectedCategories" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control form-control-solid" placeholder="Publisher" asp-for="Publisher" />
+                                    <label asp-for="Publisher"></label>
+                                </div>
+                                <span asp-validation-for="Publisher" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control form-control-solid js-datepicker" placeholder="Publishing Date" asp-for="PublishingDate" />
+                                    <label asp-for="PublishingDate"></label>
+                                </div>
+                                <span asp-validation-for="PublishingDate" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <div class="form-check form-switch form-check-solid form-check-custom mb-2">
+                                <input class="form-check-input" type="checkbox" asp-for="IsAvailableForRental">
+                                <label class="form-check-label" asp-for="IsAvailableForRental"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-5">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control form-control-solid" placeholder="Hall" asp-for="Hall" />
+                                    <label asp-for="Hall"></label>
+                                </div>
+                                <span asp-validation-for="Hall" class="text-danger d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="mb-5">
+                        <div class="form-floating mb-2">
+                            <textarea class="form-control form-control-solid js-tinymce" placeholder="Description" asp-for="Description"></textarea>
+                            <label asp-for="Description"></label>
+                        </div>
+                        <span asp-validation-for="Description" class="text-danger d-block"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary" form="Form">
+            <span class="indicator-label">
+                Save
+            </span>
+            <span class="indicator-progress">
+                Please wait... <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+            </span>
+        </button>
+        <a class="btn btn-light text-primary ms-3" asp-action="Index">Cancel</a>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/assets/plugins/tinymce/tinymce.bundle.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+}

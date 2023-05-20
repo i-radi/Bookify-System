@@ -1,0 +1,35 @@
+﻿@model IEnumerable<BookViewModel>
+
+@{
+    Layout = "_ReportsLayout";
+}
+
+<table id="data">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Categories</th>
+            <th>Publisher</th>
+            <th>Publishing Date</th>
+            <th>Hall</th>
+            <th>Available for rental</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@(string.Join(", ", book.Categories))</td>
+                <td>@book.Publisher</td>
+                <td>@book.PublishingDate.ToString("d MMM, yyyy")</td>
+                <td>@book.Hall</td>
+                <td>@(book.IsAvailableForRental ? "Yes" : "No")</td>
+                <td>@(book.IsDeleted ? "Deleted" : "Available")</td>
+            </tr>
+        }
+    </tbody>
+</table>

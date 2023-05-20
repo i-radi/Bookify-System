@@ -1,0 +1,38 @@
+﻿@model CategoryFormViewModel
+
+@{ ViewData["Title"] = $"{(Model?.Id > 0 ? "Edit" : "Add")} Category"; }
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">@(Model?.Id > 0 ? "Edit" : "Add") Category</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <form method="post" asp-controller="Categories">
+                    @if(Model?.Id > 0)
+                    {
+                        <input type="hidden" asp-for="Id" />
+                    }
+                    <div class="mb-5">
+                        <div class="form-floating mb-2">
+                            <input type="text" class="form-control" placeholder="Name" asp-for="Name" />
+                            <label asp-for="Name"></label>
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="bi bi-check2"></i>
+                        Save
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,119 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Start Override theme */
+.form-floating > .form-select {
+    padding-bottom: 0.225rem;
+}
+/* End Override theme */
+
+/* Start Override Bootbox */
+
+.bootbox-close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem 0.75rem;
+    z-index: 1;
+    background-color: transparent;
+    border: 0;
+    -webkit-appearance: none;
+}
+
+/* End Override Bootbox */
+
+/* Start Override typeahead */
+.twitter-typeahead {
+    width: 100%;
+}
+
+.tt-suggestion {
+    font-size: 16px;
+}
+
+.tt-suggestion:not(:last-child) {
+    border-bottom: 1px dashed #dcdcdc;
+}
+
+/*.tt-suggestion:hover,
+.tt-suggestion:focus {
+    background-color: #dcdcdc;
+}*/
+
+
+/* End Override typeahead */
+/* Start Custom Styles */
+.dt-spinner + div {
+    display: none !important;
+}
+
+.h-70px {
+    height: 70px !important;
+}
+
+.glass {
+    /* From https://css.glass */
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.w-fit-content {
+    width: fit-content;
+}
+
+.custom-header {
+    font-family: 'Satisfy', cursive;
+}
+
+.page-bg {
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(../assets/images/bg9-dark.jpg);
+}
+
+.mh-450px {
+    min-height: 450px;
+}
+
+@media only screen and (min-width: 1025px) {
+    .launcher .sidebar {
+        position: fixed;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        width: 425px;
+        top: 50px;
+        right: 50px;
+        bottom: 50px;
+        background-color: rgba(19,0,97,.3);
+        border-radius: 1.75rem;
+    }
+}
+
+.transform-x {
+    transform: scaleX(-1);
+}
+
+/* End Custom Styles */

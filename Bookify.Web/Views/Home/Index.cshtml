@@ -1,0 +1,148 @@
+﻿@model IEnumerable<BookViewModel>
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="d-flex flex-column flex-root page-bg">
+	<!--begin::Page-->
+	<div class="page launcher sidebar-enabled d-flex flex-row flex-column-fluid me-lg-5" id="kt_page">
+		<!--begin::Content-->
+		<div class="d-flex flex-row-fluid">
+			<!--begin::Container-->
+			<div class="d-flex flex-column flex-row-fluid align-items-center">
+				<!--begin::Menu-->
+				<div class="d-flex flex-column flex-column-fluid mb-5 mb-lg-10">
+					<!--begin::Brand-->
+					<div class="d-flex flex-center pt-10 pt-lg-0 mb-10 mb-lg-0 h-lg-225px">
+						<!--begin::Sidebar toggle-->
+						<div class="btn btn-icon btn-active-color-primary w-30px h-30px d-lg-none me-4 ms-n15" id="kt_sidebar_toggle">
+							<!--begin::Svg Icon | path: icons/duotune/abstract/abs015.svg-->
+							<span class="svg-icon svg-icon-1">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M21 7H3C2.4 7 2 6.6 2 6V4C2 3.4 2.4 3 3 3H21C21.6 3 22 3.4 22 4V6C22 6.6 21.6 7 21 7Z" fill="currentColor" />
+									<path opacity="0.3" d="M21 14H3C2.4 14 2 13.6 2 13V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11V13C22 13.6 21.6 14 21 14ZM22 20V18C22 17.4 21.6 17 21 17H3C2.4 17 2 17.4 2 18V20C2 20.6 2.4 21 3 21H21C21.6 21 22 20.6 22 20Z" fill="currentColor" />
+								</svg>
+							</span>
+							<!--end::Svg Icon-->
+						</div>
+						<!--end::Sidebar toggle-->
+						<!--begin::Logo-->
+						<a href="/">
+							<img alt="Logo" src="~/assets/images/logo.png" class="h-70px" />
+						</a>
+						<!--end::Logo-->
+					</div>
+					<!--end::Brand-->
+					<!--begin::Row-->
+					<div class="row g-7 w-xxl-850px justify-content-center">
+						<!--begin::Col-->
+						<div class="col-xxl-5">
+							<!--begin::Card-->
+							<div class="card border-0 shadow-none h-lg-100 mh-450px" style="background-color: #A838FF">
+								<!--begin::Card body-->
+								<div class="card-body d-flex flex-column flex-center pb-0 pt-15">
+									<!--begin::Wrapper-->
+									<div class="px-10 mb-10">
+										<!--begin::Heading-->
+										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">Bookify Staff</h3>
+										<!--end::Heading-->
+										<!--begin::Link-->
+										<a asp-controller="Dashboard" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">Go To Dashboard</a>
+										<!--end::Link-->
+									</div>
+									<!--end::Wrapper-->
+									<!--begin::Illustrations-->
+									<img class="mw-100 h-225px mx-auto mb-lg-n18" src="~/assets/images/staff.png" />
+									<!--end::Illustrations-->
+								</div>
+								<!--end::Card body-->
+							</div>
+							<!--end::Card-->
+						</div>
+						<!--end::Col-->
+						<!--begin::Col-->
+						<div class="col-xxl-5">
+							<!--begin::Card-->
+							<div class="card border-0 shadow-none h-lg-100 bg-primary mh-450px">
+								<!--begin::Card body-->
+								<div class="card-body d-flex flex-column flex-center pb-0 pt-15">
+									<!--begin::Wrapper-->
+									<div class="px-10 mb-10">
+										<!--begin::Heading-->
+										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">Find a book</h3>
+										<!--end::Heading-->
+										<!--begin::Link-->
+										<a asp-controller="Search" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">Go To Books Finder</a>
+										<!--end::Link-->
+									</div>
+									<!--end::Wrapper-->
+									<!--begin::Illustrations-->
+									<img class="mw-100 h-225px mx-auto mb-lg-n18" src="~/assets/images/search.png" />
+									<!--end::Illustrations-->
+								</div>
+								<!--end::Card body-->
+							</div>
+							<!--end::Card-->
+						</div>
+						<!--end::Col-->
+					</div>
+					<!--end::Row-->
+				</div>
+				<!--end::Menu-->
+			</div>
+			<!--begin::Content-->
+		</div>
+		<!--begin::Content-->
+		<!--begin::Sidebar-->
+		<div id="kt_sidebar" class="sidebar px-5 py-5 py-lg-8 px-lg-11" data-kt-drawer="true" data-kt-drawer-name="sidebar" data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="375px" data-kt-drawer-direction="end" data-kt-drawer-toggle="#kt_sidebar_toggle">
+			<!--begin::Header-->
+			<div class="d-flex flex-stack mb-5 mb-lg-8" id="kt_sidebar_header">
+				<!--begin::Title-->
+				<h2 class="text-white">Newly Added Books</h2>
+				<!--end::Title-->
+			</div>
+			<!--end::Header-->
+			<!--begin::Body-->
+			<div class="mb-5 mb-lg-8" id="kt_sidebar_body">
+				<!--begin::Scroll-->
+				<div class="hover-scroll-y me-n6 pe-6" id="kt_sidebar_body" data-kt-scroll="true" data-kt-scroll-height="auto" data-kt-scroll-dependencies="#kt_sidebar_header, #kt_sidebar_footer" data-kt-scroll-wrappers="#kt_page, #kt_sidebar, #kt_sidebar_body" data-kt-scroll-offset="0">
+					<div class="pb-20">
+						@foreach (var book in Model)
+						{
+							<!--begin::Item-->
+							<a class="d-flex flex-stack" asp-controller="Search" asp-action="Details" asp-route-bKey="@book.Key">
+								<!--begin::Symbol-->
+								<div class="symbol symbol-60px me-4">
+									<img src="@book.ImageThumbnailUrl" class="" alt="@book.Title" />
+								</div>
+								<!--end::Symbol-->
+								<!--begin::Section-->
+								<div class="d-flex align-items-center flex-row-fluid flex-wrap">
+									<!--begin:Author-->
+									<div class="flex-grow-1 me-2">
+										<h5 class="text-white text-hover-primary fs-5 fw-bolder">@book.Title</h5>
+										<span class="text-gray-400 fw-semibold d-block fs-6">@book.Author</span>
+									</div>
+									<!--end:Author-->
+								</div>
+								<!--end::Section-->
+							</a>
+							<!--end::Item-->
+							@if (book != Model.Last())
+							{
+								<!--begin::Separator-->
+								<div class="separator separator-dashed my-5"></div>
+								<!--end::Separator-->
+							}
+						}
+					</div>
+				</div>
+				<!--end::Scroll-->
+			</div>
+			<!--end::Body-->
+		</div>
+		<!--end::Sidebar-->
+	</div>
+	<!--end::Page-->
+</div>

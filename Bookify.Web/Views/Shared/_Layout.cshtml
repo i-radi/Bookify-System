@@ -1,0 +1,100 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Bookify</title>
+    <!--begin::Fonts-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Satisfy&display=swap">
+    <!--end::Fonts-->
+    <!--begin::Global Stylesheets Bundle(used by all pages)-->
+    <link rel="stylesheet" href="~/assets/css/plugins.bundle.css" type="text/css" />
+    <link rel="stylesheet" href="~/assets/css/style.bundle.css" type="text/css" />
+    <!--end::Global Stylesheets Bundle-->
+    <link rel="stylesheet" href="~/lib/animate.css/animate.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Bookify.Web.styles.css" asp-append-version="true" />
+</head>
+<body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed page-loading">
+    <!--begin::Theme mode setup on page load-->
+    <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-theme-mode")) { themeMode = document.documentElement.getAttribute("data-theme-mode"); } else { if (localStorage.getItem("data-theme") !== null) { themeMode = localStorage.getItem("data-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-theme", themeMode); }</script>
+    <!--end::Theme mode setup on page load-->
+    <!--begin:: no script-->
+    <noscript>
+        <div class="position-fixed h-100 w-100 bg-white text-center pt-20" style="z-index: 30000000000;">
+            <h1 class="text-danger">Javascript is disabled</h1>
+            <p class="pt-3 text-muted">Please enable javascript and refresh the page</p>
+        </div>
+    </noscript>
+    <!--end:: no script-->
+    <!--begin:: page loader-->
+    <div class="page-loader">
+        <span class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </span>
+    </div>
+    <!--end:: page loader-->
+    <!--begin::Main-->
+    <!--begin::Root-->
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div class="d-flex flex-column flex-root">
+            <!--begin::Page-->
+            <div class="page d-flex flex-row flex-column-fluid">
+                <!--begin::Wrapper-->
+                <div class="wrapper d-flex flex-column flex-row-fluid" id="kt_wrapper">
+                    <partial name="_Header" />
+                    <!--begin::Content wrapper-->
+                    <div class="d-flex flex-column-fluid pb-11">
+                        <partial name="_Aside" />
+                        <!--begin::Container-->
+                        <div class="d-flex flex-column flex-column-fluid container-fluid">
+                            <div class="content flex-column-fluid" id="kt_content">
+                                @RenderBody()
+                            </div>
+                        </div>
+                        <!--end::Container-->
+                    </div>
+                    <!--end::Content wrapper-->
+                </div>
+                <!--end::Wrapper-->
+            </div>
+            <!--end::Page-->
+        </div>
+    }
+    else
+    {
+        @RenderBody()
+    }
+    <!--end::Root-->
+    <!--end::Main-->
+    <!--begin::Scrolltop-->
+    <div id="kt_scrolltop" class="scrolltop" data-kt-scrolltop="true">
+        <!--begin::Svg Icon | path: icons/duotune/arrows/arr066.svg-->
+        <span class="svg-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect opacity="0.5" x="13" y="6" width="13" height="2" rx="1" transform="rotate(90 13 6)" fill="currentColor" />
+                <path d="M12.5657 8.56569L16.75 12.75C17.1642 13.1642 17.8358 13.1642 18.25 12.75C18.6642 12.3358 18.6642 11.6642 18.25 11.25L12.7071 5.70711C12.3166 5.31658 11.6834 5.31658 11.2929 5.70711L5.75 11.25C5.33579 11.6642 5.33579 12.3358 5.75 12.75C6.16421 13.1642 6.83579 13.1642 7.25 12.75L11.4343 8.56569C11.7467 8.25327 12.2533 8.25327 12.5657 8.56569Z" fill="currentColor" />
+            </svg>
+        </span>
+        <!--end::Svg Icon-->
+    </div>
+    <!--end::Scrolltop-->
+
+    <span id="Message" class="d-none">@TempData["Message"]</span>
+    <partial name="_Modal" />
+    <script>var hostUrl = "assets/";</script>
+    <!--begin::Global Javascript Bundle(used by all pages)-->
+    <script src="~/assets/js/plugins.bundle.js"></script>
+    <script src="~/assets/js/scripts.bundle.js"></script>
+    <!--end::Global Javascript Bundle-->
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    @await RenderSectionAsync("Plugins", required: false)
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,186 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="d-flex flex-column flex-root">
+			<!--begin::Page bg image-->
+	<style>
+		body {
+			background-image: url('/assets/images/bg10.jpeg');
+		}
+
+		[data-theme="dark"] body {
+			background-image: url('/assets/images/bg10-dark.jpeg');
+		}
+	</style>
+			<!--end::Page bg image-->
+			<!--begin::Authentication - Sign-in -->
+			<div class="d-flex flex-column flex-lg-row flex-column-fluid">
+				<!--begin::Aside-->
+				<div class="d-flex flex-lg-row-fluid">
+					<!--begin::Content-->
+					<div class="d-flex flex-column flex-center pb-0 pb-lg-10 p-10 w-100">
+						<!--begin::Image-->
+						<img class="theme-light-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
+				<img class="theme-dark-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
+						<!--end::Image-->
+						<!--begin::Title-->
+						<h1 class="text-gray-800 fs-2qx fw-bold text-center mb-7">Bookify, by DevCreed</h1>
+						<!--end::Title-->
+						<!--begin::Text-->
+						<div class="text-gray-600 fs-base text-center fw-semibold">In this kind of post,
+						<a href="#" class="opacity-75-hover text-primary me-1">the blogger</a>introduces a person they’ve interviewed
+						<br />and provides some background information about
+						<a href="#" class="opacity-75-hover text-primary me-1">the interviewee</a>and their
+						<br />work following this is a transcript of the interview.</div>
+						<!--end::Text-->
+					</div>
+					<!--end::Content-->
+				</div>
+				<!--begin::Aside-->
+				<!--begin::Body-->
+				<div class="d-flex flex-column-fluid flex-lg-row-auto justify-content-center justify-content-lg-end p-12">
+					<!--begin::Wrapper-->
+					<div class="bg-body d-flex flex-center rounded-4 w-md-600px p-10">
+						<!--begin::Content-->
+						<div class="w-md-400px">
+							<!--begin::Form-->
+							<form class="form w-100" novalidate="novalidate" id="kt_sign_in_form" method="post">
+								<!--begin::Heading-->
+								<div class="text-center mb-11">
+									<img src="~/assets/images/logo_sm.png" class="w-200px" />
+									<!--begin::Title-->
+									<h1 class="text-dark fw-bolder mb-3">Sign In</h1>
+									<!--end::Title-->
+								</div>
+								<!--begin::Heading-->
+								<!--begin::Input group=-->
+								<div class="fv-row mb-8">
+									<!--begin::Email-->
+									<input type="text" placeholder="Username/Email" asp-for="Input.Username" autocomplete="off" class="form-control bg-transparent" />
+									<span asp-validation-for="Input.Username" class="text-danger"></span>
+									<!--end::Email-->
+								</div>
+								<!--end::Input group=-->
+								<div class="fv-row mb-3">
+									<!--begin::Password-->
+									<input type="password" placeholder="Password" asp-for="Input.Password" autocomplete="off" class="form-control bg-transparent" />
+									<span asp-validation-for="Input.Password" class="text-danger"></span>
+									<!--end::Password-->
+								</div>
+								<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+								<!--end::Input group=-->
+								<!--begin::Wrapper-->
+								<div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
+									<div></div>
+									<!--begin::Link-->
+									<a asp-page="./ForgotPassword" class="link-primary">Forgot Password?</a>
+									<!--end::Link-->
+								</div>
+								<!--end::Wrapper-->
+								<!--begin::Submit button-->
+								<div class="d-grid mb-10">
+									<button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
+										<!--begin::Indicator label-->
+										<span class="indicator-label">Sign In</span>
+										<!--end::Indicator label-->
+										<!--begin::Indicator progress-->
+										<span class="indicator-progress">Please wait...
+										<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+										<!--end::Indicator progress-->
+									</button>
+								</div>
+								<!--end::Submit button-->
+							</form>
+							<!--end::Form-->
+						</div>
+						<!--end::Content-->
+					</div>
+					<!--end::Wrapper-->
+				</div>
+				<!--end::Body-->
+			</div>
+			<!--end::Authentication - Sign-in-->
+		</div>
+
+@*<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2>Use a local account to log in.</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-floating">
+                    <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" />
+                    <label asp-for="Input.Username" class="form-label"></label>
+                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+                </div>
+                <div class="form-floating">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" />
+                    <label asp-for="Input.Password" class="form-label"></label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div>
+                    <div class="checkbox">
+                        <label asp-for="Input.RememberMe" class="form-label">
+                            <input class="form-check-input" asp-for="Input.RememberMe" />
+                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
+                <div>
+                    <p>
+                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
+                    </p>
+                    <p>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                    </p>
+                    <p>
+                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                    </p>
+                </div>
+            </form>
+        </section>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            <h3>Use another service to log in.</h3>
+            <hr />
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                            about setting up this ASP.NET application to support logging in via external services</a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+</div>*@
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

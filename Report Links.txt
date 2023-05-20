@@ -1,0 +1,6 @@
+https://github.com/SMTAF/DatatablesPrintPDF
+https://base64.guru/converter/encode/file
+https://datatables.net/plug-ins/i18n/
+https://learn.microsoft.com/en-us/aspnet/core/data/ef-mvc/sort-filter-page?view=aspnetcore-7.0
+https://github.com/muhammadelhelaly/ViewToHTML/
+https://www.w3schools.com/css/css_table.asp
