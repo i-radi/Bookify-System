@@ -46,8 +46,8 @@
             </div>
             @if(Model.Books.Any())
             {
-                <div class="card-toolbar gap-3">
-                    <a class="btn btn-light-success" asp-action="ExportBooksToExcel" 
+                <div class="card-toolbar">
+                    <a class="btn btn-light-success me-2" asp-action="ExportBooksToExcel" 
                             asp-route-authors="@Context.Request.Query["SelectedAuthors"]"
                                asp-route-categories="@Context.Request.Query["SelectedCategories"]">
                         <i class="bi bi-file-earmark-excel-fill"></i>

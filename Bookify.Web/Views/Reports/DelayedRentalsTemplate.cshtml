@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RentalCopyViewModel>
+﻿@model IEnumerable<RentalCopiesViewModel>
 
 @{
     Layout = "_ReportsLayout";
@@ -22,11 +22,11 @@
         @foreach (var copy in Model)
         {
             <tr>
-                <td>@copy.Rental!.Subscriber!.Id</td>
-                <td>@copy.Rental!.Subscriber.FullName</td>
-                <td>@copy.Rental!.Subscriber!.MobileNumber</td>
-                <td>@copy.BookCopy!.BookTitle</td>
-                <td>@copy.BookCopy!.SerialNumber</td>
+                <td>@copy.SubscriberId</td>
+                <td>@copy.SubscriberName</td>
+                <td>@copy.SubscriberMobile</td>
+                <td>@copy.BookTitle</td>
+                <td>@copy.CopySerialNumber</td>
                 <td>@copy.RentalDate.ToString("d MMM, yyyy")</td>
                 <td>@copy.EndDate.ToString("d MMM, yyyy")</td>
                 <td>@copy.ExtendedOn?.ToString("d MMM, yyyy")</td>

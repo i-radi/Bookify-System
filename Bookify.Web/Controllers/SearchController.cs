@@ -4,15 +4,15 @@ namespace Bookify.Web.Controllers
 {
     public class SearchController : Controller
     {
-        private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IHashids _hashids;
+        private readonly IBookService _bookService;
 
-        public SearchController(IApplicationDbContext context, IMapper mapper, IHashids hashids)
+        public SearchController(IMapper mapper, IHashids hashids, IBookService bookService)
         {
-            _context = context;
             _mapper = mapper;
             _hashids = hashids;
+            _bookService = bookService;
         }
 
         public IActionResult Index()
@@ -22,33 +22,29 @@ namespace Bookify.Web.Controllers
 
         public IActionResult Find(string query)
         {
-            var books = _context.Books
-                .Include(b => b.Author)
-                .Where(b => !b.IsDeleted && (b.Title.Contains(query) || b.Author!.Name.Contains(query)))
-                .Select(b => new { b.Title, Author = b.Author!.Name, Key = _hashids.EncodeHex(b.Id.ToString()) })
-                .ToList();
+            var books = _bookService.Search(query);
 
-            return Ok(books);
+            var data = _mapper.ProjectTo<BookSearchResultViewModel>(books).ToList();
+
+            data.ForEach(book =>
+            {
+                book.Key = _hashids.EncodeHex(book.Id.ToString());
+            });
+
+            return Ok(data);
         }
 
         public IActionResult Details(string bKey)
         {
             var bookId = _hashids.DecodeHex(bKey);
 
-            if (bookId.Length == 0)
+            var query = _bookService.GetDetails();
+
+            var viewModel = _mapper.ProjectTo<BookViewModel>(query)
+                .SingleOrDefault(b => b.Id == int.Parse(bookId));
+
+            if (viewModel is null)
                 return NotFound();
-
-            var book = _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.Copies)
-                .Include(b => b.Categories)
-                .ThenInclude(c => c.Category)
-                .SingleOrDefault(b => b.Id == int.Parse(bookId) && !b.IsDeleted);
-
-            if (book is null)
-                return NotFound();
-
-            var viewModel = _mapper.Map<BookViewModel>(book);
 
             return View(viewModel);
         }

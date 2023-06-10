@@ -1,6 +1,4 @@
-﻿using Bookify.Domain.Enums;
-
-namespace Bookify.Infrastructure.Persistence.Configurations;
+﻿namespace Bookify.Infrastructure.Persistence.Configurations;
 internal class RentalCopyConfiguration : IEntityTypeConfiguration<RentalCopy>
 {
     public void Configure(EntityTypeBuilder<RentalCopy> builder)

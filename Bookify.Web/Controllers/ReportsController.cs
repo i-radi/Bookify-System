@@ -1,5 +1,4 @@
-﻿using Bookify.Domain.Entities;
-using ClosedXML.Excel;
+﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OpenHtmlToPdf;
 using System.Net.Mime;
@@ -14,12 +13,22 @@ namespace Bookify.Web.Controllers
         private readonly IWebHostEnvironment _webHost;
         private readonly IMapper _mapper;
         private readonly IViewRendererService _viewRendererService;
+        private readonly IAuthorService _authorService;
+        private readonly ICategoryService _categoryService;
+        private readonly IBookService _bookService;
+        private readonly IRentalService _rentalService;
 
         private readonly string _logoPath;
         private readonly int _sheetStartRow = 5;
 
-        public ReportsController(IApplicationDbContext context, IMapper mapper,
-            IWebHostEnvironment webHost, IViewRendererService viewRendererService)
+        public ReportsController(IApplicationDbContext context,
+            IMapper mapper,
+            IWebHostEnvironment webHost,
+            IViewRendererService viewRendererService,
+            IAuthorService authorService,
+            ICategoryService categoryService,
+            IBookService bookService,
+            IRentalService rentalService)
         {
             _context = context;
             _mapper = mapper;
@@ -27,6 +36,10 @@ namespace Bookify.Web.Controllers
             _viewRendererService = viewRendererService;
 
             _logoPath = $"{_webHost.WebRootPath}/assets/images/Logo.png";
+            _authorService = authorService;
+            _categoryService = categoryService;
+            _bookService = bookService;
+            _rentalService = rentalService;
         }
 
 
@@ -39,21 +52,8 @@ namespace Bookify.Web.Controllers
         public IActionResult Books(IList<int> selectedAuthors, IList<int> selectedCategories,
             int? pageNumber)
         {
-            var authors = _context.Authors.OrderBy(a => a.Name).ToList();
-            var categories = _context.Categories.OrderBy(a => a.Name).ToList();
-
-            IQueryable<Book> books = _context.Books
-                        .Include(b => b.Author)
-                        .Include(b => b.Categories)
-                        .ThenInclude(c => c.Category)
-                        .Where(b => (!selectedAuthors.Any() || selectedAuthors.Contains(b.AuthorId))
-                        && (!selectedCategories.Any() || b.Categories.Any(c => selectedCategories.Contains(c.CategoryId))));
-
-            //if (selectedAuthors.Any())
-            //    books = books.Where(b => selectedAuthors.Contains(b.AuthorId));
-
-            //if (selectedCategories.Any())
-            //    books = books.Where(b => b.Categories.Any(c => selectedCategories.Contains(c.CategoryId)));
+            var authors = _authorService.GetActiveAuthors();
+            var categories = _categoryService.GetActiveCategories();
 
             var viewModel = new BooksReportViewModel
             {
@@ -62,23 +62,16 @@ namespace Bookify.Web.Controllers
             };
 
             if (pageNumber is not null)
-                viewModel.Books = PaginatedList<Book>.Create(books, pageNumber ?? 0, (int)ReportsConfigurations.PageSize);
+                viewModel.Books = _bookService.GetPaginatedList(selectedAuthors, selectedCategories, pageNumber ?? 0, (int)ReportsConfigurations.PageSize);
 
             return View(viewModel);
         }
 
         public async Task<IActionResult> ExportBooksToExcel(string authors, string categories)
         {
-            var selectedAuthors = authors?.Split(',');
-            var selectedCategories = categories?.Split(',');
+            var query = _bookService.GetQuerbaleRawData(authors, categories);
 
-            var books = _context.Books
-                        .Include(b => b.Author)
-                        .Include(b => b.Categories)
-                        .ThenInclude(c => c.Category)
-                        .Where(b => (string.IsNullOrEmpty(authors) || selectedAuthors!.Contains(b.AuthorId.ToString()))
-                            && (string.IsNullOrEmpty(categories) || b.Categories.Any(c => selectedCategories!.Contains(c.CategoryId.ToString()))))
-                        .ToList();
+            var books = _mapper.ProjectTo<BookViewModel>(query).ToList();
 
             using var workbook = new XLWorkbook();
 
@@ -94,8 +87,8 @@ namespace Bookify.Web.Controllers
             for (int i = 0; i < books.Count; i++)
             {
                 sheet.Cell(i + _sheetStartRow, 1).SetValue(books[i].Title);
-                sheet.Cell(i + _sheetStartRow, 2).SetValue(books[i].Author!.Name);
-                sheet.Cell(i + _sheetStartRow, 3).SetValue(string.Join(", ", books[i].Categories!.Select(c => c.Category!.Name)));
+                sheet.Cell(i + _sheetStartRow, 2).SetValue(books[i].Author);
+                sheet.Cell(i + _sheetStartRow, 3).SetValue(string.Join(", ", books[i].Categories));
                 sheet.Cell(i + _sheetStartRow, 4).SetValue(books[i].Publisher);
                 sheet.Cell(i + _sheetStartRow, 5).SetValue(books[i].PublishingDate.ToString("d MMM, dddd"));
                 sheet.Cell(i + _sheetStartRow, 6).SetValue(books[i].Hall);
@@ -116,36 +109,12 @@ namespace Bookify.Web.Controllers
 
         public async Task<IActionResult> ExportBooksToPDF(string authors, string categories)
         {
-            var selectedAuthors = authors?.Split(',');
-            var selectedCategories = categories?.Split(',');
+            var query = _bookService.GetQuerbaleRawData(authors, categories);
 
-            var books = _context.Books
-                        .Include(b => b.Author)
-                        .Include(b => b.Categories)
-                        .ThenInclude(c => c.Category)
-                        .Where(b => (string.IsNullOrEmpty(authors) || selectedAuthors!.Contains(b.AuthorId.ToString()))
-                            && (string.IsNullOrEmpty(categories) || b.Categories.Any(c => selectedCategories!.Contains(c.CategoryId.ToString()))))
-                        .ToList();
-
-            //var html = await System.IO.File.ReadAllTextAsync($"{_webHost.WebRootPath}/templates/report.html");
-
-            //html = html.Replace("[Title]", "Books");
-
-            //var body = "<table><thead><tr><th>Title</th><th>Author</th></tr></thead><tbody>";
-
-            //foreach (var book in books)
-            //{
-            //    body += $"<tr><td>{book.Title}</td><td>{book.Author!.Name}</td></tr>";
-            //}
-
-            //body += "</body></table>";
-
-            //html = html.Replace("[body]", body);
-
-            var viewModel = _mapper.Map<IEnumerable<BookViewModel>>(books);
+            var books = _mapper.ProjectTo<BookViewModel>(query).ToList();
 
             var templatePath = "~/Views/Reports/BooksTemplate.cshtml";
-            var html = await _viewRendererService.RenderViewToStringAsync(ControllerContext, templatePath, viewModel);
+            var html = await _viewRendererService.RenderViewToStringAsync(ControllerContext, templatePath, books);
 
             var pdf = Pdf
                 .From(html)
@@ -178,16 +147,8 @@ namespace Bookify.Web.Controllers
                     return View(viewModel);
                 }
 
-                IQueryable<RentalCopy> rentals = _context.RentalCopies
-                        .Include(c => c.BookCopy)
-                        .ThenInclude(r => r!.Book)
-                        .ThenInclude(b => b!.Author)
-                        .Include(c => c.Rental)
-                        .ThenInclude(c => c!.Subscriber)
-                        .Where(r => r.RentalDate >= from && r.RentalDate <= to);
-
                 if (pageNumber is not null)
-                    viewModel.Rentals = PaginatedList<RentalCopy>.Create(rentals, pageNumber ?? 0, (int)ReportsConfigurations.PageSize);
+                    viewModel.Rentals = _rentalService.GetPaginatedList(from, to, pageNumber ?? 0, (int)ReportsConfigurations.PageSize);
             }
 
             ModelState.Clear();
@@ -197,17 +158,9 @@ namespace Bookify.Web.Controllers
 
         public async Task<IActionResult> ExportRentalsToExcel(string duration)
         {
-            var from = DateTime.Parse(duration.Split(" - ")[0]);
-            var to = DateTime.Parse(duration.Split(" - ")[1]);
+            var query = _rentalService.GetQuerbaleRawData(duration);
 
-            var rentals = _context.RentalCopies
-                        .Include(c => c.BookCopy)
-                        .ThenInclude(r => r!.Book)
-                        .ThenInclude(b => b!.Author)
-                        .Include(c => c.Rental)
-                        .ThenInclude(c => c!.Subscriber)
-                        .Where(r => !string.IsNullOrEmpty(duration) && r.RentalDate >= from && r.RentalDate <= to)
-                        .ToList();
+            var rentals = _mapper.ProjectTo<RentalCopiesViewModel>(query).ToList();
 
             using var workbook = new XLWorkbook();
 
@@ -222,12 +175,12 @@ namespace Bookify.Web.Controllers
 
             for (int i = 0; i < rentals.Count; i++)
             {
-                sheet.Cell(i + _sheetStartRow, 1).SetValue(rentals[i].Rental!.Subscriber!.Id);
-                sheet.Cell(i + _sheetStartRow, 2).SetValue($"{rentals[i].Rental!.Subscriber!.FirstName} {rentals[i].Rental!.Subscriber!.LastName}");
-                sheet.Cell(i + _sheetStartRow, 3).SetValue(rentals[i].Rental!.Subscriber!.MobileNumber);
-                sheet.Cell(i + _sheetStartRow, 4).SetValue(rentals[i].BookCopy!.Book!.Title);
-                sheet.Cell(i + _sheetStartRow, 5).SetValue(rentals[i].BookCopy!.Book!.Author!.Name);
-                sheet.Cell(i + _sheetStartRow, 6).SetValue(rentals[i].BookCopy!.SerialNumber);
+                sheet.Cell(i + _sheetStartRow, 1).SetValue(rentals[i].SubscriberId);
+                sheet.Cell(i + _sheetStartRow, 2).SetValue(rentals[i].SubscriberName);
+                sheet.Cell(i + _sheetStartRow, 3).SetValue(rentals[i].SubscriberMobile);
+                sheet.Cell(i + _sheetStartRow, 4).SetValue(rentals[i].BookTitle);
+                sheet.Cell(i + _sheetStartRow, 5).SetValue(rentals[i].BookAuthor);
+                sheet.Cell(i + _sheetStartRow, 6).SetValue(rentals[i].CopySerialNumber);
                 sheet.Cell(i + _sheetStartRow, 7).SetValue(rentals[i].RentalDate.ToString("d MMM, yyyy"));
                 sheet.Cell(i + _sheetStartRow, 8).SetValue(rentals[i].EndDate.ToString("d MMM, yyyy"));
                 sheet.Cell(i + _sheetStartRow, 9).SetValue(rentals[i].ReturnDate is null ? "-" : rentals[i].ReturnDate?.ToString("d MMM, yyyy"));
@@ -246,17 +199,9 @@ namespace Bookify.Web.Controllers
 
         public async Task<IActionResult> ExportRentalsToPDF(string duration)
         {
-            var from = DateTime.Parse(duration.Split(" - ")[0]);
-            var to = DateTime.Parse(duration.Split(" - ")[1]);
+            var query = _rentalService.GetQuerbaleRawData(duration);
 
-            var rentals = _context.RentalCopies
-                        .Include(c => c.BookCopy)
-                        .ThenInclude(r => r!.Book)
-                        .ThenInclude(b => b!.Author)
-                        .Include(c => c.Rental)
-                        .ThenInclude(c => c!.Subscriber)
-                        .Where(r => !string.IsNullOrEmpty(duration) && r.RentalDate >= from && r.RentalDate <= to)
-                        .ToList();
+            var rentals = _mapper.ProjectTo<RentalCopiesViewModel>(query).ToList();
 
             var templatePath = "~/Views/Reports/RentalsTemplate.cshtml";
             var html = await _viewRendererService.RenderViewToStringAsync(ControllerContext, templatePath, rentals);
@@ -276,30 +221,16 @@ namespace Bookify.Web.Controllers
         #region DelayedRentals
         public IActionResult DelayedRentals()
         {
-            var rentals = _context.RentalCopies
-                        .Include(c => c.BookCopy)
-                        .ThenInclude(r => r!.Book)
-                        .Include(c => c.Rental)
-                        .ThenInclude(c => c!.Subscriber)
-                        .Where(c => !c.ReturnDate.HasValue && c.EndDate < DateTime.Today)
-                        .ToList();
+            var query = _rentalService.GetQuerbaleDelayedRawData();
 
-            var viewModel = _mapper.Map<IEnumerable<RentalCopyViewModel>>(rentals);
-
-            return View(viewModel);
+            return View(_mapper.ProjectTo<RentalCopiesViewModel>(query).ToList());
         }
 
         public async Task<IActionResult> ExportDelayedRentalsToExcel()
         {
-            var rentals = _context.RentalCopies
-                           .Include(c => c.BookCopy)
-                           .ThenInclude(r => r!.Book)
-                           .Include(c => c.Rental)
-                           .ThenInclude(c => c!.Subscriber)
-                           .Where(c => !c.ReturnDate.HasValue && c.EndDate < DateTime.Today)
-                           .ToList();
+            var query = _rentalService.GetQuerbaleDelayedRawData();
 
-            var data = _mapper.Map<IList<RentalCopyViewModel>>(rentals);
+            var data = _mapper.ProjectTo<RentalCopiesViewModel>(query).ToList();
 
             using var workbook = new XLWorkbook();
 
@@ -314,14 +245,14 @@ namespace Bookify.Web.Controllers
 
             for (int i = 0; i < data.Count; i++)
             {
-                sheet.Cell(i + _sheetStartRow, 1).SetValue(data[i].Rental!.Subscriber!.Id);
-                sheet.Cell(i + _sheetStartRow, 2).SetValue(data[i].Rental!.Subscriber!.FullName);
-                sheet.Cell(i + _sheetStartRow, 3).SetValue(data[i].Rental!.Subscriber!.MobileNumber);
-                sheet.Cell(i + _sheetStartRow, 4).SetValue(data[i].BookCopy!.BookTitle);
-                sheet.Cell(i + _sheetStartRow, 5).SetValue(data[i].BookCopy!.SerialNumber);
+                sheet.Cell(i + _sheetStartRow, 1).SetValue(data[i].SubscriberId);
+                sheet.Cell(i + _sheetStartRow, 2).SetValue(data[i].SubscriberName);
+                sheet.Cell(i + _sheetStartRow, 3).SetValue(data[i].CopySerialNumber);
+                sheet.Cell(i + _sheetStartRow, 4).SetValue(data[i].BookTitle);
+                sheet.Cell(i + _sheetStartRow, 5).SetValue(data[i].CopySerialNumber);
                 sheet.Cell(i + _sheetStartRow, 6).SetValue(data[i].RentalDate.ToString("d MMM, yyyy"));
                 sheet.Cell(i + _sheetStartRow, 7).SetValue(data[i].EndDate.ToString("d MMM, yyyy"));
-                sheet.Cell(i + _sheetStartRow, 8).SetValue(data[i].ExtendedOn is null ? "-" : rentals[i].ExtendedOn?.ToString("d MMM, yyyy"));
+                sheet.Cell(i + _sheetStartRow, 8).SetValue(data[i].ExtendedOn is null ? "-" : data[i].ExtendedOn?.ToString("d MMM, yyyy"));
                 sheet.Cell(i + _sheetStartRow, 9).SetValue(data[i].DelayInDays);
             }
 
@@ -339,15 +270,9 @@ namespace Bookify.Web.Controllers
         public async Task<IActionResult> ExportDelayedRentalsToPDF()
         {
 
-            var rentals = _context.RentalCopies
-                           .Include(c => c.BookCopy)
-                           .ThenInclude(r => r!.Book)
-                           .Include(c => c.Rental)
-                           .ThenInclude(c => c!.Subscriber)
-                           .Where(c => !c.ReturnDate.HasValue && c.EndDate < DateTime.Today)
-                           .ToList();
+            var query = _rentalService.GetQuerbaleDelayedRawData();
 
-            var data = _mapper.Map<IEnumerable<RentalCopyViewModel>>(rentals);
+            var data = _mapper.ProjectTo<RentalCopiesViewModel>(query).ToList();
 
             var templatePath = "~/Views/Reports/DelayedRentalsTemplate.cshtml";
             var html = await _viewRendererService.RenderViewToStringAsync(ControllerContext, templatePath, data);

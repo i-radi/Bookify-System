@@ -1,5 +1,4 @@
-﻿using Bookify.Domain.Entities;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Bookify.Web.Core.Mapping
 {
@@ -31,6 +30,14 @@ namespace Bookify.Web.Core.Mapping
                 .ForMember(dest => dest.Categories,
                     opt => opt.MapFrom(src => src.Categories.Select(c => c.Category!.Name).ToList()));
 
+            CreateMap<BookDto, BookViewModel>();
+
+            CreateMap<Book, BookRowViewModel>()
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author!.Name));
+
+            CreateMap<Book, BookSearchResultViewModel>()
+                .ForMember(dest => dest.Author, opt => opt.MapFrom(src => src.Author!.Name));
+
             CreateMap<BookCopy, BookCopyViewModel>()
                 .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book!.Title))
                 .ForMember(dest => dest.BookId, opt => opt.MapFrom(src => src.Book!.Id))
@@ -40,10 +47,13 @@ namespace Bookify.Web.Core.Mapping
 
             //Users
             CreateMap<ApplicationUser, UserViewModel>();
+
             CreateMap<UserFormViewModel, ApplicationUser>()
                 .ForMember(dest => dest.NormalizedEmail, opt => opt.MapFrom(src => src.Email.ToUpper()))
                 .ForMember(dest => dest.NormalizedUserName, opt => opt.MapFrom(src => src.UserName.ToUpper()))
                 .ReverseMap();
+
+            CreateMap<UserFormViewModel, CreateUserDto>();
 
             //Governorates & Areas
             CreateMap<Governorate, SelectListItem>()
@@ -69,10 +79,26 @@ namespace Bookify.Web.Core.Mapping
 
             //Rentals
             CreateMap<Rental, RentalViewModel>();
+
             CreateMap<RentalCopy, RentalCopyViewModel>();
+
             CreateMap<RentalCopy, CopyHistoryViewModel>()
                 .ForMember(dest => dest.SubscriberMobile, opt => opt.MapFrom(src => src.Rental!.Subscriber!.MobileNumber))
                 .ForMember(dest => dest.SubscriberName, opt => opt.MapFrom(src => $"{src.Rental!.Subscriber!.FirstName} {src.Rental!.Subscriber!.LastName}"));
+
+            CreateMap<ReturnCopyViewModel, ReturnCopyDto>();
+
+            CreateMap<RentalCopy, RentalCopiesViewModel>()
+                .ForMember(dest => dest.SubscriberId, opt => opt.MapFrom(src => src.Rental!.Subscriber!.Id))
+                .ForMember(dest => dest.SubscriberMobile, opt => opt.MapFrom(src => src.Rental!.Subscriber!.MobileNumber))
+                .ForMember(dest => dest.SubscriberName, opt => opt.MapFrom(src => $"{src.Rental!.Subscriber!.FirstName} {src.Rental!.Subscriber!.LastName}"))
+                .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.BookCopy!.Book!.Title))
+                .ForMember(dest => dest.BookAuthor, opt => opt.MapFrom(src => src.BookCopy!.Book!.Author!.Name))
+                .ForMember(dest => dest.CopySerialNumber, opt => opt.MapFrom(src => src.BookCopy!.SerialNumber));
+
+            //General
+            CreateMap<KeyValuePairDto, ChartItemViewModel>()
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Key));
         }
     }
 }

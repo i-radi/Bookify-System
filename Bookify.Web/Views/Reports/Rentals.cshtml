@@ -31,8 +31,8 @@
             </div>
             @if (Model.Rentals.Any())
             {
-                <div class="card-toolbar gap-3">
-                    <a class="btn btn-light-success" asp-action="ExportRentalsToExcel"
+                <div class="card-toolbar">
+                    <a class="btn btn-light-success me-2" asp-action="ExportRentalsToExcel"
                        asp-route-duration="@Context.Request.Query["Duration"]">
                         <i class="bi bi-file-earmark-excel-fill"></i>
                         Export to Excel

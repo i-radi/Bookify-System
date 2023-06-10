@@ -1,6 +1,4 @@
-﻿using Bookify.Infrastructure.Persistence.Configurations;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection;
 
 namespace Bookify.Infrastructure.Persistence

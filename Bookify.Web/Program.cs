@@ -1,3 +1,4 @@
+using Bookify.Application;
 using Bookify.Infrastructure;
 using Bookify.Web;
 using Bookify.Web.Seeds;
@@ -13,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services
+    .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
     .AddWebServices(builder);
 
@@ -76,13 +78,14 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
     }
 });
 
-var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+var subscriberService = scope.ServiceProvider.GetRequiredService<ISubscriberService>();
+var rentalService = scope.ServiceProvider.GetRequiredService<IRentalService>();
 var webHostEnvironment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 var whatsAppClient = scope.ServiceProvider.GetRequiredService<IWhatsAppClient>();
 var emailBodyBuilder = scope.ServiceProvider.GetRequiredService<IEmailBodyBuilder>();
 var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
-var hangfireTasks = new HangfireTasks(dbContext, webHostEnvironment, whatsAppClient,
+var hangfireTasks = new HangfireTasks(subscriberService, rentalService, webHostEnvironment, whatsAppClient,
     emailBodyBuilder, emailSender);
 
 RecurringJob.AddOrUpdate(() => hangfireTasks.PrepareExpirationAlert(), "0 14 * * *");

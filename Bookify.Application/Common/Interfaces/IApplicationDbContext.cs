@@ -1,7 +1,4 @@
-﻿using Bookify.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace Bookify.Application.Common.Interfaces;
+﻿namespace Bookify.Application.Common.Interfaces;
 public interface IApplicationDbContext
 {
     public DbSet<Area> Areas { get; set; }

@@ -1,27 +1,32 @@
-﻿using FluentValidation;
-
-namespace Bookify.Web.Controllers
+﻿namespace Bookify.Web.Controllers
 {
     [Authorize(Roles = AppRoles.Archive)]
     public class BookCopiesController : Controller
     {
-        private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IValidator<BookCopyFormViewModel> _validator;
+        private readonly IBookService _bookService;
+        private readonly IBookCopyService _bookCopyService;
+        private readonly IRentalService _rentalService;
 
-        public BookCopiesController(IApplicationDbContext context, 
-            IMapper mapper, 
-            IValidator<BookCopyFormViewModel> validator)
+        public BookCopiesController(
+            IMapper mapper,
+            IValidator<BookCopyFormViewModel> validator,
+            IBookService bookService,
+            IBookCopyService bookCopyService,
+            IRentalService rentalService)
         {
-            _context = context;
             _mapper = mapper;
             _validator = validator;
+            _bookService = bookService;
+            _bookCopyService = bookCopyService;
+            _rentalService = rentalService;
         }
 
         [AjaxOnly]
         public IActionResult Create(int bookId)
         {
-            var book = _context.Books.Find(bookId);
+            var book = _bookService.GetById(bookId);
 
             if (book is null)
                 return NotFound();
@@ -43,30 +48,18 @@ namespace Bookify.Web.Controllers
             if (!validationResult.IsValid)
                 return BadRequest();
 
-            var book = _context.Books.Find(model.BookId);
+            var copy = _bookCopyService.Add(model.BookId, model.EditionNumber, model.IsAvailableForRental, User.GetUserId());
 
-            if (book is null)
+            if (copy is null)
                 return NotFound();
 
-            BookCopy copy = new()
-            {
-                EditionNumber = model.EditionNumber,
-                IsAvailableForRental = book.IsAvailableForRental && model.IsAvailableForRental,
-                CreatedById = User.GetUserId()
-            };
-
-            book.Copies.Add(copy);
-            _context.SaveChanges();
-
-            var viewModel = _mapper.Map<BookCopyViewModel>(copy);
-
-            return PartialView("_BookCopyRow", viewModel);
+            return PartialView("_BookCopyRow", _mapper.Map<BookCopyViewModel>(copy));
         }
 
         [AjaxOnly]
         public IActionResult Edit(int id)
         {
-            var copy = _context.BookCopies.Include(c => c.Book).SingleOrDefault(c => c.Id == id);
+            var copy = _bookCopyService.GetDetails(id);
 
             if (copy is null)
                 return NotFound();
@@ -85,52 +78,27 @@ namespace Bookify.Web.Controllers
             if (!validationResult.IsValid)
                 return BadRequest();
 
-            var copy = _context.BookCopies.Include(c => c.Book).SingleOrDefault(c => c.Id == model.Id);
+            var copy = _bookCopyService.Update(model.Id, model.EditionNumber, model.IsAvailableForRental, User.GetUserId());
 
             if (copy is null)
                 return NotFound();
 
-            copy.EditionNumber = model.EditionNumber;
-            copy.IsAvailableForRental = copy.Book!.IsAvailableForRental && model.IsAvailableForRental;
-            copy.LastUpdatedById = User.GetUserId();
-            copy.LastUpdatedOn = DateTime.Now;
-
-            _context.SaveChanges();
-
-            var viewModel = _mapper.Map<BookCopyViewModel>(copy);
-
-            return PartialView("_BookCopyRow", viewModel);
+            return PartialView("_BookCopyRow", _mapper.Map<BookCopyViewModel>(copy));
         }
 
         public IActionResult RentalHistory(int id)
         {
-            var copyHistory = _context.RentalCopies
-                .Include(c => c.Rental)
-                .ThenInclude(r => r!.Subscriber)
-                .Where(c => c.BookCopyId == id)
-                .OrderByDescending(c => c.RentalDate)
-                .ToList();
+            var copyHistory = _rentalService.GetAllByCopyId(id);
 
-            var viewModel = _mapper.Map<IEnumerable<CopyHistoryViewModel>>(copyHistory);
-
-            return View(viewModel);
+            return View(_mapper.Map<IEnumerable<CopyHistoryViewModel>>(copyHistory));
         }
 
         [HttpPost]
         public IActionResult ToggleStatus(int id)
         {
-            var copy = _context.BookCopies.Find(id);
+            var copy = _bookCopyService.ToggleStatus(id, User.GetUserId());
 
-            if (copy is null)
-                return NotFound();
-
-            copy.IsDeleted = !copy.IsDeleted;
-            copy.LastUpdatedById = User.GetUserId();
-            copy.LastUpdatedOn = DateTime.Now;
-
-            _context.SaveChanges();
-
-            return Ok();
+            return copy is null ? NotFound() : Ok();
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using Bookify.Domain.Entities;
-using FluentValidation.AspNetCore;
+﻿using FluentValidation.AspNetCore;
 using Hangfire;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -10,33 +8,40 @@ namespace Bookify.Web.Controllers
     [Authorize(Roles = AppRoles.Reception)]
     public class SubscribersController : Controller
     {
-        private readonly IApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IDataProtector _dataProtector;
         private readonly IMapper _mapper;
         private readonly IValidator<SubscriberFormViewModel> _validator;
         private readonly IWhatsAppClient _whatsAppClient;
+        private readonly ISubscriberService _subscriberService;
+        private readonly IAreaService _areaService;
+        private readonly IGovernorateService _governorateService;
 
         private readonly IImageService _imageService;
         private readonly IEmailBodyBuilder _emailBodyBuilder;
         private readonly IEmailSender _emailSender;
 
-        public SubscribersController(IApplicationDbContext context,
+        public SubscribersController(
             IWebHostEnvironment webHostEnvironment,
             IDataProtectionProvider dataProtector,
             IMapper mapper,
             IValidator<SubscriberFormViewModel> validator,
             IWhatsAppClient whatsAppClient,
+            ISubscriberService subscriberService,
+            IAreaService areaService,
+            IGovernorateService governorateService,
             IImageService imageService,
             IEmailBodyBuilder emailBodyBuilder,
             IEmailSender emailSender)
         {
-            _context = context;
             _webHostEnvironment = webHostEnvironment;
             _dataProtector = dataProtector.CreateProtector("MySecureKey");
             _mapper = mapper;
             _validator = validator;
             _whatsAppClient = whatsAppClient;
+            _subscriberService = subscriberService;
+            _areaService = areaService;
+            _governorateService = governorateService;
             _imageService = imageService;
             _emailBodyBuilder = emailBodyBuilder;
             _emailSender = emailSender;
@@ -54,36 +59,31 @@ namespace Bookify.Web.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var subscriber = _context.Subscribers
-                            .SingleOrDefault(s =>
-                                    s.Email == model.Value
-                                || s.NationalId == model.Value
-                                || s.MobileNumber == model.Value);
+            var query = _subscriberService.GetQueryable();
 
-            var viewModel = _mapper.Map<SubscriberSearchResultViewModel>(subscriber);
+            var subscriber = _mapper.ProjectTo<SubscriberSearchResultViewModel>(query)
+                                    .SingleOrDefault(s =>
+                                                       s.Email == model.Value
+                                                    || s.NationalId == model.Value
+                                                    || s.MobileNumber == model.Value);
 
             if (subscriber is not null)
-                viewModel.Key = _dataProtector.Protect(subscriber.Id.ToString());
+                subscriber.Key = _dataProtector.Protect(subscriber.Id.ToString());
 
-            return PartialView("_Result", viewModel);
+            return PartialView("_Result", subscriber);
         }
 
         public IActionResult Details(string id)
         {
             var subscriberId = int.Parse(_dataProtector.Unprotect(id));
 
-            var subscriber = _context.Subscribers
-                .Include(s => s.Governorate)
-                .Include(s => s.Area)
-                .Include(s => s.Subscriptions)
-                .Include(s => s.Rentals)
-                .ThenInclude(r => r.RentalCopies)
-                .SingleOrDefault(s => s.Id == subscriberId);
+            var query = _subscriberService.GetQueryableDetails();
 
-            if (subscriber is null)
+            var viewModel = _mapper.ProjectTo<SubscriberViewModel>(query).SingleOrDefault(s => s.Id == subscriberId);
+
+            if (viewModel is null)
                 return NotFound();
 
-            var viewModel = _mapper.Map<SubscriberViewModel>(subscriber);
             viewModel.Key = id;
 
             return View(viewModel);
@@ -119,22 +119,7 @@ namespace Bookify.Web.Controllers
                 return View("Form", PopulateViewModel(model));
             }
 
-            subscriber.ImageUrl = $"{imagePath}/{imageName}";
-            subscriber.ImageThumbnailUrl = $"{imagePath}/thumb/{imageName}";
-            subscriber.CreatedById = User.GetUserId();
-
-            Subscription subscription = new()
-            {
-                CreatedById = subscriber.CreatedById,
-                CreatedOn = subscriber.CreatedOn,
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddYears(1)
-            };
-
-            subscriber.Subscriptions.Add(subscription);
-
-            _context.Subscribers.Add(subscriber);
-            _context.SaveChanges();
+            subscriber = _subscriberService.Add(subscriber, imagePath, imageName, User.GetUserId());
 
             //Send welcome email
             var placeholders = new Dictionary<string, string>()
@@ -151,6 +136,7 @@ namespace Bookify.Web.Controllers
                 "Welcome to Bookify", body));
 
             //Send welcome message using WhatsApp
+            //You can logic to  whatsApp service
             if (model.HasWhatsApp)
             {
                 var components = new List<WhatsAppComponent>()
@@ -181,7 +167,7 @@ namespace Bookify.Web.Controllers
         public IActionResult Edit(string id)
         {
             var subscriberId = int.Parse(_dataProtector.Unprotect(id));
-            var subscriber = _context.Subscribers.Find(subscriberId);
+            var subscriber = _subscriberService.GetById(subscriberId);
 
             if (subscriber is null)
                 return NotFound();
@@ -206,7 +192,7 @@ namespace Bookify.Web.Controllers
 
             var subscriberId = int.Parse(_dataProtector.Unprotect(model.Key!));
 
-            var subscriber = _context.Subscribers.Find(subscriberId);
+            var subscriber = _subscriberService.GetById(subscriberId);
 
             if (subscriber is null)
                 return NotFound();
@@ -238,10 +224,7 @@ namespace Bookify.Web.Controllers
             }
 
             subscriber = _mapper.Map(model, subscriber);
-            subscriber.LastUpdatedById = User.GetUserId();
-            subscriber.LastUpdatedOn = DateTime.Now;
-
-            _context.SaveChanges();
+            _subscriberService.Update(subscriber, User.GetUserId());
 
             return RedirectToAction(nameof(Details), new { id = model.Key });
         }
@@ -251,9 +234,7 @@ namespace Bookify.Web.Controllers
         {
             var subscriberId = int.Parse(_dataProtector.Unprotect(sKey));
 
-            var subscriber = _context.Subscribers
-                                        .Include(s => s.Subscriptions)
-                                        .SingleOrDefault(s => s.Id == subscriberId);
+            var subscriber = _subscriberService.GetSubscriberWithSubscriptions(subscriberId);
 
             if (subscriber is null)
                 return NotFound();
@@ -267,17 +248,7 @@ namespace Bookify.Web.Controllers
                             ? DateTime.Today
                             : lastSubscription.EndDate.AddDays(1);
 
-            Subscription newSubscription = new()
-            {
-                CreatedById = User.FindFirst(ClaimTypes.NameIdentifier)!.Value,
-                CreatedOn = DateTime.Now,
-                StartDate = startDate,
-                EndDate = startDate.AddYears(1)
-            };
-
-            subscriber.Subscriptions.Add(newSubscription);
-
-            _context.SaveChanges();
+            var newSubscription = _subscriberService.RenewSubscription(subscriberId, startDate, User.GetUserId());
 
             //Send email and WhatsApp Message
             var placeholders = new Dictionary<string, string>()
@@ -292,10 +263,6 @@ namespace Bookify.Web.Controllers
             BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(
                 subscriber.Email,
                 "Bookify Subscription Renewal", body));
-
-            //BackgroundJob.Schedule(() => _emailSender.SendEmailAsync(
-            //    subscriber.Email,
-            //    "Bookify Subscription Renewal", body), TimeSpan.FromMinutes(1));
 
             if (subscriber.HasWhatsApp)
             {
@@ -328,10 +295,7 @@ namespace Bookify.Web.Controllers
         [AjaxOnly]
         public IActionResult GetAreas(int governorateId)
         {
-            var areas = _context.Areas
-                    .Where(a => a.GovernorateId == governorateId && !a.IsDeleted)
-                    .OrderBy(g => g.Name)
-                    .ToList();
+            var areas = _areaService.GetActiveAreasByGovernorateId(governorateId);
 
             return Ok(_mapper.Map<IEnumerable<SelectListItem>>(areas));
         }
@@ -343,10 +307,7 @@ namespace Bookify.Web.Controllers
             if (!string.IsNullOrEmpty(model.Key))
                 subscriberId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-            var subscriber = _context.Subscribers.SingleOrDefault(b => b.NationalId == model.NationalId);
-            var isAllowed = subscriber is null || subscriber.Id.Equals(subscriberId);
-
-            return Json(isAllowed);
+            return Json(_subscriberService.AllowNationalId(subscriberId, model.NationalId));
         }
 
         public IActionResult AllowMobileNumber(SubscriberFormViewModel model)
@@ -356,10 +317,7 @@ namespace Bookify.Web.Controllers
             if (!string.IsNullOrEmpty(model.Key))
                 subscriberId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-            var subscriber = _context.Subscribers.SingleOrDefault(b => b.MobileNumber == model.MobileNumber);
-            var isAllowed = subscriber is null || subscriber.Id.Equals(subscriberId);
-
-            return Json(isAllowed);
+            return Json(_subscriberService.AllowMobileNumber(subscriberId, model.MobileNumber));
         }
 
         public IActionResult AllowEmail(SubscriberFormViewModel model)
@@ -369,25 +327,19 @@ namespace Bookify.Web.Controllers
             if (!string.IsNullOrEmpty(model.Key))
                 subscriberId = int.Parse(_dataProtector.Unprotect(model.Key));
 
-            var subscriber = _context.Subscribers.SingleOrDefault(b => b.Email == model.Email);
-            var isAllowed = subscriber is null || subscriber.Id.Equals(subscriberId);
-
-            return Json(isAllowed);
+            return Json(_subscriberService.AllowEmail(subscriberId, model.Email));
         }
 
         private SubscriberFormViewModel PopulateViewModel(SubscriberFormViewModel? model = null)
         {
             SubscriberFormViewModel viewModel = model is null ? new SubscriberFormViewModel() : model;
 
-            var governorates = _context.Governorates.Where(a => !a.IsDeleted).OrderBy(a => a.Name).ToList();
+            var governorates = _governorateService.GetActiveGovernorates();
             viewModel.Governorates = _mapper.Map<IEnumerable<SelectListItem>>(governorates);
 
             if (model?.GovernorateId > 0)
             {
-                var areas = _context.Areas
-                    .Where(a => a.GovernorateId == model.GovernorateId && !a.IsDeleted)
-                    .OrderBy(a => a.Name)
-                    .ToList();
+                var areas = _areaService.GetActiveAreasByGovernorateId(model.GovernorateId);
 
                 viewModel.Areas = _mapper.Map<IEnumerable<SelectListItem>>(areas);
             }

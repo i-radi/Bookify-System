@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         [Display(Name = "Author")]
-        [Remote("AllowItem", null!, 
+        [Remote("AllowItem", null!,
             AdditionalFields = "Id", ErrorMessage = Errors.Duplicated)]
         public string Name { get; set; } = null!;
     }

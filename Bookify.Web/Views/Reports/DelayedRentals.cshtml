@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RentalCopyViewModel>
+﻿@model IEnumerable<RentalCopiesViewModel>
 
 @{
     ViewData["Title"] = "Delayed Rentals Report";
@@ -11,8 +11,8 @@
         </div>
         @if (Model.Any())
         {
-            <div class="card-toolbar gap-3">
-                <a class="btn btn-light-success" asp-action="ExportDelayedRentalsToExcel">
+            <div class="card-toolbar">
+                <a class="btn btn-light-success me-2" asp-action="ExportDelayedRentalsToExcel">
                     <i class="bi bi-file-earmark-excel-fill"></i>
                     Export to Excel
                 </a>
@@ -46,11 +46,11 @@
                         @foreach (var copy in Model)
                         {
                             <tr>
-                                <td>@copy.Rental!.Subscriber!.Id</td>
-                                <td>@copy.Rental!.Subscriber.FullName</td>
-                                <td>@copy.Rental!.Subscriber!.MobileNumber</td>
-                                <td>@copy.BookCopy!.BookTitle</td>
-                                <td>@copy.BookCopy!.SerialNumber</td>
+                                <td>@copy.SubscriberId</td>
+                                <td>@copy.SubscriberName</td>
+                                <td>@copy.SubscriberMobile</td>
+                                <td>@copy.BookTitle</td>
+                                <td>@copy.CopySerialNumber</td>
                                 <td>@copy.RentalDate.ToString("d MMM, yyyy")</td>
                                 <td>@copy.EndDate.ToString("d MMM, yyyy")</td>
                                 <td>@copy.ExtendedOn?.ToString("d MMM, yyyy")</td>

@@ -1,10 +1,8 @@
 ﻿using Bookify.Web.Core.Mapping;
 using Bookify.Web.Helpers;
-using Bookify.Web.Validators;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using HashidsNet;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Reflection;

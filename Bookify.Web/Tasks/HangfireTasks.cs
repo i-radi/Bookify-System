@@ -5,20 +5,24 @@ namespace Bookify.Web.Tasks
 {
     public class HangfireTasks
     {
-        private readonly IApplicationDbContext _context;
+        private readonly ISubscriberService _subscriberService;
+        private readonly IRentalService _rentalService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IWhatsAppClient _whatsAppClient;
 
         private readonly IEmailBodyBuilder _emailBodyBuilder;
         private readonly IEmailSender _emailSender;
 
-        public HangfireTasks(IApplicationDbContext context,
+        public HangfireTasks(
+            ISubscriberService subscriberService,
+            IRentalService rentalService,
             IWebHostEnvironment webHostEnvironment,
             IWhatsAppClient whatsAppClient,
             IEmailBodyBuilder emailBodyBuilder,
             IEmailSender emailSender)
         {
-            _context = context;
+            _subscriberService = subscriberService;
+            _rentalService = rentalService;
             _webHostEnvironment = webHostEnvironment;
             _whatsAppClient = whatsAppClient;
             _emailBodyBuilder = emailBodyBuilder;
@@ -26,10 +30,7 @@ namespace Bookify.Web.Tasks
         }
         public async Task PrepareExpirationAlert()
         {
-            var subscribers = _context.Subscribers
-                .Include(s => s.Subscriptions)
-                .Where(s => !s.IsBlackListed && s.Subscriptions.OrderByDescending(x => x.EndDate).First().EndDate == DateTime.Today.AddDays(5))
-                .ToList();
+            var subscribers = _subscriberService.GetExpired(expiredWithin: 5);
 
             foreach (var subscriber in subscribers)
             {
@@ -78,13 +79,7 @@ namespace Bookify.Web.Tasks
         {
             var tomorrow = DateTime.Today.AddDays(1);
 
-            var rentals = _context.Rentals
-                    .Include(r => r.Subscriber)
-                    .Include(r => r.RentalCopies)
-                    .ThenInclude(c => c.BookCopy)
-                    .ThenInclude(bc => bc!.Book)
-                    .Where(r => r.RentalCopies.Any(r => r.EndDate.Date == tomorrow && !r.ReturnDate.HasValue))
-                    .ToList();
+            var rentals = _rentalService.GetExpired(tomorrow);
 
             foreach (var rental in rentals)
             {
