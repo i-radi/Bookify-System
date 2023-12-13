@@ -20,7 +20,7 @@ namespace Bookify.Web.Core.ViewModels
 
         [Display(Name = "Publishing Date")]
         [AssertThat("PublishingDate <= Today()", ErrorMessage = Errors.NotAllowFutureDates)]
-        public DateTime PublishingDate { get; set; } = DateTime.Now;
+        public DateTime PublishingDate { get; set; } = DateTime.Today;
 
         public IFormFile? Image { get; set; }
 

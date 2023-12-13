@@ -2,23 +2,27 @@
 var datatable;
 var updatedRow;
 var exportedCols = [];
-
-function showSuccessMessage(message = 'Saved successfully!') {
+var currentLanguage = $('#CurrentLanguage').text();
+function showSuccessMessage(message = localization.savedSuccessfully) {
     Swal.fire({
         icon: 'success',
-        title: 'Good Job',
+        title: localization.goodJob,
         text: message,
+        confirmButtonText: localization.ok,
+        cancelButtonText: localization.cancel,
         customClass: {
             confirmButton: "btn btn-primary"
         }
     });
 }
 
-function showErrorMessage(message = 'Something went wrong!') {
+function showErrorMessage(message = localization.somethingWrong) {
     Swal.fire({
         icon: 'error',
-        title: 'Oops...',
+        title: localization.Oops,
         text: message.responseText !== undefined ? message.responseText : message,
+        confirmButtonText: localization.ok,
+        cancelButtonText: localization.cancel,
         customClass: {
             confirmButton: "btn btn-primary"
         }
@@ -75,7 +79,10 @@ var KTDatatables = function () {
             'pageLength': 10,
             'drawCallback': function () {
                 KTMenu.createInstances();
-            }
+            },
+            language: {
+                url: currentLanguage !== 'en' ? `../assets/plugins/datatables/i18n/${currentLanguage}.json` : undefined,
+            },
         });
     }
 
@@ -184,7 +191,12 @@ $(document).ready(function () {
 
     //TinyMCE
     if ($('.js-tinymce').length > 0) {
-        var options = { selector: ".js-tinymce", height: "430" };
+        var options = {
+            selector: ".js-tinymce",
+            height: "430",
+            directionality: currentLanguage == 'ar' ? 'rtl' : 'ltr',
+            language: currentLanguage != 'en' ? currentLanguage : undefined,
+        };
 
         if (KTThemeMode.getMode() === "dark") {
             options["skin"] = "oxide-dark";
@@ -202,7 +214,8 @@ $(document).ready(function () {
         singleDatePicker: true,
         autoApply: true,
         drops: 'up',
-        maxDate: new Date()
+        maxDate: new Date(),
+        locale: daterangePickerLocale
     });
 
     //SweetAlert
@@ -247,14 +260,14 @@ $(document).ready(function () {
         var btn = $(this);
 
         bootbox.confirm({
-            message: "Are you sure that you need to toggle this item status?",
+            message: localization.toggleStatusConfirmation,
             buttons: {
                 confirm: {
-                    label: 'Yes',
+                    label: localization.yes,
                     className: 'btn-danger'
                 },
                 cancel: {
-                    label: 'No',
+                    label: localization.no,
                     className: 'btn-secondary'
                 }
             },

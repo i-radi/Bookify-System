@@ -17,6 +17,8 @@ namespace Bookify.Infrastructure.Persistence
         public DbSet<BookCopy> BookCopies { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Governorate> Governorates { get; set; }
+        public DbSet<Localization> Localizations { get; set; }
+        public DbSet<LocalizationSet> LocalizationSets { get; set; }
         public DbSet<Rental> Rentals { get; set; }
         public DbSet<RentalCopy> RentalCopies { get; set; }
         public DbSet<Subscriber> Subscribers { get; set; }

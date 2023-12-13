@@ -6,6 +6,7 @@
         private readonly IMapper _mapper;
         private readonly IValidator<CategoryFormViewModel> _validator;
         private readonly ICategoryService _categoryService;
+        private readonly string currentCulture = Thread.CurrentThread.CurrentCulture.Name;
 
         public CategoriesController(IMapper mapper, IValidator<CategoryFormViewModel> validator, ICategoryService categoryService)
         {
@@ -17,7 +18,7 @@
         [HttpGet]
         public IActionResult Index()
         {
-            var categories = _categoryService.GetAll();
+            var categories = _categoryService.GetAll(currentCulture);
 
             return View(_mapper.Map<IEnumerable<CategoryViewModel>>(categories));
         }
@@ -37,9 +38,17 @@
             if (!validationResult.IsValid)
                 return BadRequest();
 
-            var category = _categoryService.Add(model.Name, User.GetUserId());
+            var name = new List<LocalizationDto>
+            {
+                new LocalizationDto(AppCultures.English, model.NameInEnglish),
+                new LocalizationDto(AppCultures.Arabic, model.NameInArabic)
+            };
 
-            return PartialView("_CategoryRow", _mapper.Map<CategoryViewModel>(category));
+            var category = _categoryService.Add(name, User.GetUserId());
+            var viewModel = _mapper.Map<CategoryViewModel>(category);
+            //viewModel.Name = currentCulture == AppCultures.Arabic ? model.NameInArabic : model.NameInEnglish;
+
+            return PartialView("_CategoryRow", viewModel);
         }
 
         [HttpGet]
@@ -51,7 +60,14 @@
             if (category is null)
                 return NotFound();
 
-            return PartialView("_Form", _mapper.Map<CategoryFormViewModel>(category));
+            var viewModel = new CategoryFormViewModel
+            {
+                Id = id,
+                NameInEnglish = category.Name.Localizations.SingleOrDefault(c => c.CultureCode == AppCultures.English)?.Value!,
+                NameInArabic = category.Name.Localizations.SingleOrDefault(c => c.CultureCode == AppCultures.Arabic)?.Value!,
+            };
+
+            return PartialView("_Form", viewModel);
         }
 
         [HttpPost]
@@ -62,7 +78,13 @@
             if (!validationResult.IsValid)
                 return BadRequest();
 
-            var category = _categoryService.Update(model.Id, model.Name, User.GetUserId());
+            var name = new List<LocalizationDto>
+            {
+                new LocalizationDto(AppCultures.English, model.NameInEnglish),
+                new LocalizationDto(AppCultures.Arabic, model.NameInArabic)
+            };
+
+            var category = _categoryService.Update(model.Id, name, User.GetUserId());
 
             //You split code as Authors Controller
             return category is null
@@ -78,9 +100,14 @@
             return category is null ? NotFound() : Ok(category.LastUpdatedOn.ToString());
         }
 
-        public IActionResult AllowItem(CategoryFormViewModel model)
+        public IActionResult AllowEnglishItem(CategoryFormViewModel model)
         {
-            return Json(_categoryService.AllowCategory(model.Id, model.Name));
+            return Json(_categoryService.AllowCategory(model.Id, model.NameInEnglish, AppCultures.English));
+        }
+
+        public IActionResult AllowArabicItem(CategoryFormViewModel model)
+        {
+            return Json(_categoryService.AllowCategory(model.Id, model.NameInArabic, AppCultures.Arabic));
         }
     }
 }

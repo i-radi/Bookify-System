@@ -2,7 +2,7 @@
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = localizer["signIn"];
 }
 
 <div class="d-flex flex-column flex-root">
@@ -28,14 +28,12 @@
 				<img class="theme-dark-show mx-auto mw-100 w-150px w-lg-500px mb-10" src="~/assets/images/login.svg" alt="" />
 						<!--end::Image-->
 						<!--begin::Title-->
-						<h1 class="text-gray-800 fs-2qx fw-bold text-center mb-7">Bookify, by DevCreed</h1>
+				<h1 class="text-gray-800 fs-2qx fw-bold text-center mb-7">@localizer["title"], @localizer["byDevCreed"]</h1>
 						<!--end::Title-->
 						<!--begin::Text-->
-						<div class="text-gray-600 fs-base text-center fw-semibold">In this kind of post,
-						<a href="#" class="opacity-75-hover text-primary me-1">the blogger</a>introduces a person they’ve interviewed
-						<br />and provides some background information about
-						<a href="#" class="opacity-75-hover text-primary me-1">the interviewee</a>and their
-						<br />work following this is a transcript of the interview.</div>
+						<div class="text-gray-600 fs-base text-center fw-semibold w-75">
+							@localizer["loremIpsum"]
+						</div>
 						<!--end::Text-->
 					</div>
 					<!--end::Content-->
@@ -53,21 +51,21 @@
 								<div class="text-center mb-11">
 									<img src="~/assets/images/logo_sm.png" class="w-200px" />
 									<!--begin::Title-->
-									<h1 class="text-dark fw-bolder mb-3">Sign In</h1>
+									<h1 class="text-dark fw-bolder mb-3">@localizer["signIn"]</h1>
 									<!--end::Title-->
 								</div>
 								<!--begin::Heading-->
 								<!--begin::Input group=-->
 								<div class="fv-row mb-8">
 									<!--begin::Email-->
-									<input type="text" placeholder="Username/Email" asp-for="Input.Username" autocomplete="off" class="form-control bg-transparent" />
+							<input type="text" placeholder="@localizer["usernameOrEmail"]" asp-for="Input.Username" autocomplete="off" class="form-control bg-transparent" />
 									<span asp-validation-for="Input.Username" class="text-danger"></span>
 									<!--end::Email-->
 								</div>
 								<!--end::Input group=-->
 								<div class="fv-row mb-3">
 									<!--begin::Password-->
-									<input type="password" placeholder="Password" asp-for="Input.Password" autocomplete="off" class="form-control bg-transparent" />
+									<input type="password" placeholder="@localizer["password"]" asp-for="Input.Password" autocomplete="off" class="form-control bg-transparent" />
 									<span asp-validation-for="Input.Password" class="text-danger"></span>
 									<!--end::Password-->
 								</div>
@@ -77,7 +75,7 @@
 								<div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
 									<div></div>
 									<!--begin::Link-->
-									<a asp-page="./ForgotPassword" class="link-primary">Forgot Password?</a>
+							<a asp-page="./ForgotPassword" class="link-primary">@localizer["forgetPassword"]</a>
 									<!--end::Link-->
 								</div>
 								<!--end::Wrapper-->
@@ -85,10 +83,11 @@
 								<div class="d-grid mb-10">
 									<button type="submit" id="kt_sign_in_submit" class="btn btn-primary">
 										<!--begin::Indicator label-->
-										<span class="indicator-label">Sign In</span>
+										<span class="indicator-label">@localizer["signIn"]</span>
 										<!--end::Indicator label-->
 										<!--begin::Indicator progress-->
-										<span class="indicator-progress">Please wait...
+										<span class="indicator-progress">
+											@localizer["pleaseWait"]
 										<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
 										<!--end::Indicator progress-->
 									</button>

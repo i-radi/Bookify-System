@@ -1,7 +1,7 @@
 ﻿@model DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard";
+	ViewData["Title"] = localizer["dashboard"];
 }
 
 <!--begin::Toolbar-->
@@ -9,7 +9,7 @@
 	<!--begin::Page title-->
 	<div class="page-title d-flex flex-column me-3">
 		<!--begin::Title-->
-		<h1 class="d-flex text-dark fw-bold my-1 fs-3">Dashboard</h1>
+		<h1 class="d-flex text-dark fw-bold my-1 fs-3">@localizer["dashboard"]</h1>
 		<!--end::Title-->
 	</div>
 	<!--end::Page title-->
@@ -26,10 +26,10 @@
 				<!--begin::Heading-->
 				<div class="mb-20 p-8 w-fit-content glass">
 					<!--begin::Title-->
-					<h3 class="fw-bold text-white fs-5x mb-5 ms-n1 custom-header">Bookify</h3>
+					<h3 class="fw-bold text-white fs-5x mb-5 ms-n1 custom-header">@localizer["title"]</h3>
 					<!--end::Title-->
 					<!--begin::Description-->
-					<span class="fw-bold text-white fs-4 mb-8 d-block lh-0">Books are the best friends you’ll never meet</span>
+					<span class="fw-bold text-white fs-4 mb-8 d-block lh-0">@localizer["booksAreFriends"]</span>
 					<!--end::Description-->
 					<!--begin::Items-->
 					<div class="d-flex align-items-center">
@@ -39,7 +39,7 @@
 							<i class="las la-book-reader fs-3 text-white me-2"></i>
 							<!--end::Icon-->
 							<!--begin::Info-->
-							<span class="fw-semibold text-white fs-6">@Model.NumberOfCopies+ books</span>
+							<span class="fw-semibold text-white fs-6">@Model.NumberOfCopies+ @localizer["book"]</span>
 							<!--end::Info-->
 						</div>
 						<!--end::Item-->
@@ -49,7 +49,7 @@
 							<i class="las la-user-friends fs-3 text-white me-2"></i>
 							<!--end::Icon-->
 							<!--begin::Info-->
-							<span class="fw-semibold text-white fs-6">@Model.NumberOfSubscribers subscribers</span>
+							<span class="fw-semibold text-white fs-6">@Model.NumberOfSubscribers @localizer["subscriber"]</span>
 							<!--end::Info-->
 						</div>
 						<!--end::Item-->
@@ -75,7 +75,7 @@
 			<div class="card-header pt-7">
 				<!--begin::Title-->
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bold text-dark">Recently Added Books</span>
+					<span class="card-label fw-bold text-dark">@localizer["newlyAddedBooks"]</span>
 				</h3>
 				<!--end::Title-->
 			</div>
@@ -124,7 +124,7 @@
 			<!--begin::Header-->
 			<div class="card-header border-0 pt-5">
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bold text-gray-800">Top Books</span>
+					<span class="card-label fw-bold text-gray-800">@localizer["topBooks"]</span>
 				</h3>
 			</div>
 			<!--end::Header-->
@@ -176,14 +176,14 @@
 			<div class="card-header pt-7">
 				<!--begin::Title-->
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bold text-gray-800">Rentals</span>
-					<span class="text-gray-400 mt-1 fw-semibold fs-6">Per Day</span>
+					<span class="card-label fw-bold text-gray-800">@localizer["rentals"]</span>
+					<span class="text-gray-400 mt-1 fw-semibold fs-6">@localizer["perDay"]</span>
 				</h3>
 				<!--end::Title-->
 				<!--begin::Toolbar-->
 				<div class="card-toolbar">
 					<!--begin::Daterangepicker(defined in src/js/layout/app.js)-->
-					<div data-kt-daterangepicker="true" data-kt-daterangepicker-opens="left" class="btn btn-sm btn-light d-flex align-items-center px-4">
+					<div data-kt-daterangepicker="true" data-kt-daterangepicker-opens="@(CultureInfo.CurrentCulture.Name == AppCultures.Arabic ? "right" : "left")" class="btn btn-sm btn-light d-flex align-items-center px-4">
 						<!--begin::Display range-->
 						<div id="DateRange" class="text-gray-600 fw-bold">Loading date range...</div>
 						<!--end::Display range-->
@@ -219,8 +219,8 @@
 			<div class="card-header pt-5 mb-6">
 				<!--begin::Title-->
 				<h3 class="card-title align-items-start flex-column">
-					<span class="card-label fw-bold text-gray-800">Subscribers</span>
-					<span class="text-gray-400 mt-1 fw-semibold fs-6">Per City</span>
+					<span class="card-label fw-bold text-gray-800">@localizer["subscribers"]</span>
+					<span class="text-gray-400 mt-1 fw-semibold fs-6">@localizer["perCity"]</span>
 				</h3>
 				<!--end::Title-->
 			</div>

@@ -21,3 +21,5 @@ global using System.ComponentModel.DataAnnotations;
 global using System.Security.Claims;
 global using WhatsAppCloudApi;
 global using WhatsAppCloudApi.Services;
+global using Microsoft.AspNetCore.Localization;
+global using System.Globalization;

@@ -2,11 +2,11 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = localizer["categories"];
 }
 
 @section Styles
-    {
+{
     <link rel="stylesheet" href="~/assets/plugins/datatables/datatables.bundle.css" />
 }
 
@@ -26,15 +26,15 @@
             </div>
             <!--begin::Content-->
             <div class="d-flex flex-column pe-0 pe-sm-10">
-                <h5 class="mb-1">Categories</h5>
+                <h5 class="mb-1">@localizer["categories"]</h5>
             </div>
             <!--end::Content-->
         </div>
         <div>
             <a href="javascript:;" class="btn btn-sm btn-primary js-render-modal"
-           data-title="Add Category" data-url="/Categories/Create">
+           data-title="@localizer["addCategory"]" data-url="/Categories/Create">
                 <i class="bi bi-plus-square-dotted"></i>
-                Add
+                @localizer["add"]
             </a>
         </div>
     </div>
@@ -46,11 +46,11 @@
                 <table class="table table-row-dashed table-row-gray-300 gy-2 align-middle js-datatables" data-document-title="Categories">
                     <thead>
                         <tr class="fw-bold fs-6 text-gray-800">
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Created On</th>
-                            <th>Last Updated On</th>
-                            <th class="text-end js-no-export">Action</th>
+                            <th>@localizer["categories"]</th>
+                            <th>@localizer["status"]</th>
+                            <th>@localizer["createdOn"]</th>
+                            <th>@localizer["lastUpdatedOn"]</th>
+                            <th class="text-end js-no-export">@localizer["action"]</th>
                         </tr>
                     </thead>
                     <tbody>

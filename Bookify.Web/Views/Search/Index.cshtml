@@ -1,5 +1,6 @@
-﻿
-@{ ViewData["Title"] = "Find a book"; }
+﻿@{
+	ViewData["Title"] = localizer["findBook"];
+}
 
 @section Styles {
     <link href="~/css/typeahead.css" rel="stylesheet" />
@@ -9,11 +10,11 @@
 	<ul class="breadcrumb breadcrumb-dot fw-semibold text-gray-600 fs-7 mb-5">
 		<!--begin::Item-->
 		<li class="breadcrumb-item text-gray-600">
-			<a href="/" class="text-gray-600 text-hover-primary">Home</a>
+			<a href="/" class="text-gray-600 text-hover-primary">@localizer["home"]</a>
 		</li>
 		<!--end::Item-->
 		<!--begin::Item-->
-		<li class="breadcrumb-item text-gray-500">Find a book</li>
+		<li class="breadcrumb-item text-gray-500">@localizer["findBook"]</li>
 		<!--end::Item-->
 	</ul>
 	<div class="card mb-12">
@@ -24,19 +25,19 @@
 				<!--begin::Wrapper-->
 				<div class="d-flex flex-column align-items-start justift-content-center flex-equal me-5">
 					<!--begin::Title-->
-					<h1 class="fw-bold fs-4 fs-lg-1 text-gray-800 mb-5 mb-lg-10">Find a book</h1>
+					<h1 class="fw-bold fs-4 fs-lg-1 text-gray-800 mb-5 mb-lg-10">@localizer["findBook"]</h1>
 					<!--end::Title-->
 					<!--begin::Input group-->
 					<div class="position-relative w-100">
 						<!--begin::Svg Icon | path: icons/duotune/general/gen021.svg-->
 						<span class="svg-icon svg-icon-2 svg-icon-primary position-absolute top-50 translate-middle ms-8 z-index-3">
-							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="reverse">
 								<rect opacity="0.5" x="17.0365" y="15.1223" width="8.15546" height="2" rx="1" transform="rotate(45 17.0365 15.1223)" fill="currentColor"></rect>
 								<path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
 							</svg>
 						</span>
 						<!--end::Svg Icon-->
-						<input type="text" class="form-control fs-4 py-4 ps-14 text-gray-700 placeholder-gray-400 mw-500px" id="Search" placeholder="Search by book title or author name">
+						<input type="text" class="form-control fs-4 py-4 ps-14 text-gray-700 placeholder-gray-400 mw-500px has-icon" id="Search" placeholder="@localizer["searchByTitleOrAuthor"]">
 					</div>
 					<!--end::Input group-->
 				</div>

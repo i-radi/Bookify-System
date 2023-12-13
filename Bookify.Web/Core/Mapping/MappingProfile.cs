@@ -7,7 +7,11 @@ namespace Bookify.Web.Core.Mapping
         public MappingProfile()
         {
             //Categories
-            CreateMap<Category, CategoryViewModel>();
+            CreateMap<CategoryDto, CategoryViewModel>();
+
+            CreateMap<Category, CategoryViewModel>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom<NameResolver>());
+
             CreateMap<CategoryFormViewModel, Category>().ReverseMap();
             CreateMap<Category, SelectListItem>()
                 .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))

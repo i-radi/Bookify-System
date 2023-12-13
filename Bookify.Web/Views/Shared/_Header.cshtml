@@ -1,6 +1,13 @@
 ﻿@inject IWebHostEnvironment WebHostEnvironment
 
+@inject IOptions<RequestLocalizationOptions> options
+
 @{
+
+	var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+	var currentLanguage = CultureInfo.CurrentCulture.Name;
+	var cultures = options.Value.SupportedUICultures!.ToList();
+
 	var avatarUrl = $"{WebHostEnvironment.WebRootPath}/images/users/{User.FindFirst(ClaimTypes.NameIdentifier)!.Value}.png";
 
 	avatarUrl = System.IO.File.Exists(avatarUrl)
@@ -27,7 +34,7 @@
 			<!--end::Aside  toggle-->
 			<!--begin::Logo-->
 			<a asp-controller="Home" asp-action="Index">
-				<img alt="Logo" src="~/assets/images/logo.png" class="h-40px h-lg-50px" />
+				<img alt="Logo" src="~/assets/images/logo-@(CultureInfo.CurrentCulture.TwoLetterISOLanguageName).png" class="h-40px h-lg-50px" />
 			</a>
 			<!--end::Logo-->
 		</div>
@@ -87,7 +94,7 @@
 								</span>
 								<!--end::Svg Icon-->
 							</span>
-							<span class="menu-title">Light</span>
+							<span class="menu-title">@localizer["light"]</span>
 						</a>
 					</div>
 					<!--end::Menu item-->
@@ -106,7 +113,7 @@
 								</span>
 								<!--end::Svg Icon-->
 							</span>
-							<span class="menu-title">Dark</span>
+							<span class="menu-title">@localizer["dark"]</span>
 						</a>
 					</div>
 					<!--end::Menu item-->
@@ -122,7 +129,7 @@
 								</span>
 								<!--end::Svg Icon-->
 							</span>
-							<span class="menu-title">System</span>
+							<span class="menu-title">@localizer["system"]</span>
 						</a>
 					</div>
 					<!--end::Menu item-->
@@ -136,7 +143,7 @@
 				<div class="btn btn-flex align-items-center bg-hover-white bg-hover-opacity-10 py-2 px-2 px-md-3" data-kt-menu-trigger="click" data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
 					<!--begin::Name-->
 					<div class="d-none d-md-flex flex-column align-items-end justify-content-center me-2 me-md-4">
-						<span class="text-muted fs-8 fw-semibold lh-1 mb-1">Welcome</span>
+						<span class="text-muted fs-8 fw-semibold lh-1 mb-1">@localizer["welcome"]</span>
 						<span class="text-white fs-8 fw-bold lh-1">@User.FindFirst(ClaimTypes.GivenName)!.Value</span>
 					</div>
 					<!--end::Name-->
@@ -171,14 +178,46 @@
 					<!--begin::Menu separator-->
 					<div class="separator my-2"></div>
 					<!--end::Menu separator-->
+					<!--begin::Menu item-->
+					<div class="menu-item px-5" data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="left-start" data-kt-menu-offset="-15px, 0">
+						<a href="#" class="menu-link px-5">
+							<span class="menu-title position-relative">
+								<span>@localizer["language"]</span>
+								<span class="fs-8 rounded bg-light px-3 py-2 position-absolute translate-middle-y top-50 end-0">
+									@CultureInfo.CurrentCulture.NativeName.Split(" ")[0]
+									<img class="w-15px h-15px rounded-1 ms-2" src="~/assets/images/@(CultureInfo.CurrentCulture.TwoLetterISOLanguageName).svg" alt="@CultureInfo.CurrentCulture.Name" />
+								</span>
+							</span>
+						</a>
+						<!--begin::Menu sub-->
+						<div class="menu-sub menu-sub-dropdown w-175px py-4">
+							<form method="post" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl">
+								@foreach (var language in cultures)
+								{
+									<!--begin::Menu item-->
+									<div class="menu-item px-3">
+										<button type="submit" class="menu-link d-flex px-5 w-100 border-0 @(currentLanguage == language.Name ? "active" : "bg-transparent")"
+											name="culture" value="@language.Name">
+											<span class="symbol symbol-20px me-4">
+												<img class="rounded-1" src="~/assets/images/@(language.TwoLetterISOLanguageName).svg" alt="@language.Name" />
+											</span>@language.NativeName.Split(" ")[0]
+										</button>
+									</div>
+									<!--end::Menu item-->
+								}
+							</form>
+						</div>
+						<!--end::Menu sub-->
+					</div>
+					<!--end::Menu item-->
 					<div class="menu-item px-5 my-1">
-						<a asp-area="Identity" asp-page="/Account/Manage/Index" class="menu-link px-5">Account Settings</a>
+						<a asp-area="Identity" asp-page="/Account/Manage/Index" class="menu-link px-5">@localizer["accountSettings"]</a>
 					</div>
 					<!--end::Menu item-->
 					<!--begin::Menu item-->
 					<div class="menu-item px-5">
 						<form id="SignOut" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
-							<a type="submit" class="menu-link px-5 js-signout">Sign Out</a>
+							<a type="submit" class="menu-link px-5 js-signout">@localizer["signOut"]</a>
 						</form>
 					</div>
 					<!--end::Menu item-->

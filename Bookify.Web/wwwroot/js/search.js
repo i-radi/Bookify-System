@@ -20,7 +20,7 @@
             //header: '<h3 class="p-2">Books</h3>',
             empty: [
                 '<div class="m-3 fw-bold">',
-                'No book were found!',
+                localization.noBooksFound,
                 '</div>'
             ].join('\n'),
             suggestion: Handlebars.compile('<div class="py-2"><span>{{title}}</span><br/><span class="f-xs text-gray-400">by {{author}}</span></div>')

@@ -1,11 +1,16 @@
 ﻿using Bookify.Web.Core.Mapping;
 using Bookify.Web.Helpers;
+using Bookify.Web.Localization;
 using FluentValidation.AspNetCore;
 using Hangfire;
 using HashidsNet;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Extensions.Localization;
+using System.Globalization;
 using System.Reflection;
+using System.Security.Cryptography.Xml;
 using UoN.ExpressiveAnnotations.NetCore.DependencyInjection;
 using ViewToHTML.Extensions;
 using WhatsAppCloudApi.Extensions;
@@ -79,6 +84,34 @@ namespace Bookify.Web
             services.AddMvc(options =>
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute())
             );
+
+            return services;
+        }
+
+        public static IServiceCollection AddLocalizationConfigurations(
+            this IServiceCollection services,
+            string[] cultures
+            )
+        {
+            services.AddLocalization();
+            services.AddDistributedMemoryCache();
+            services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+
+            services.AddMvc()
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization(options =>
+                {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                        factory.Create(typeof(JsonStringLocalizerFactory));
+                });
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = cultures.Select(c => new CultureInfo(c)).ToArray();
+
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
 
             return services;
         }

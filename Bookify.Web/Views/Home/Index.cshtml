@@ -1,10 +1,35 @@
 ﻿@model IEnumerable<BookViewModel>
 
+@inject IOptions<RequestLocalizationOptions> options
+
 @{
-    ViewData["Title"] = "Home Page";
+	var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+	var currentLanguage = CultureInfo.CurrentCulture.Name;
+	var cultures = options.Value.SupportedUICultures!.ToList();
+}
+
+@{
+	ViewData["Title"] = localizer["homePage"];
 }
 
 <div class="d-flex flex-column flex-root page-bg">
+	<div class="dropdown position-absolute p-8">
+		<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+			@CultureInfo.CurrentCulture.NativeName
+		</button>
+		<form method="post" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl">
+			<ul class="dropdown-menu">
+				@foreach (var language in cultures)
+				{
+					<li>
+						<button class="dropdown-item @(currentLanguage == language.Name ? "active" : string.Empty)" name="culture" value="@language.Name">
+							@language.NativeName
+						</button>
+					</li>
+				}
+			</ul>
+		</form>
+	</div>
 	<!--begin::Page-->
 	<div class="page launcher sidebar-enabled d-flex flex-row flex-column-fluid me-lg-5" id="kt_page">
 		<!--begin::Content-->
@@ -29,7 +54,7 @@
 						<!--end::Sidebar toggle-->
 						<!--begin::Logo-->
 						<a href="/">
-							<img alt="Logo" src="~/assets/images/logo.png" class="h-70px" />
+							<img alt="Logo" src="~/assets/images/logo-@(CultureInfo.CurrentCulture.TwoLetterISOLanguageName).png" class="h-70px" />
 						</a>
 						<!--end::Logo-->
 					</div>
@@ -45,10 +70,10 @@
 									<!--begin::Wrapper-->
 									<div class="px-10 mb-10">
 										<!--begin::Heading-->
-										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">Bookify Staff</h3>
+										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">@localizer["bookifyStaff"]</h3>
 										<!--end::Heading-->
 										<!--begin::Link-->
-										<a asp-controller="Dashboard" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">Go To Dashboard</a>
+										<a asp-controller="Dashboard" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">@localizer["goToDashboard"]</a>
 										<!--end::Link-->
 									</div>
 									<!--end::Wrapper-->
@@ -70,10 +95,10 @@
 									<!--begin::Wrapper-->
 									<div class="px-10 mb-10">
 										<!--begin::Heading-->
-										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">Find a book</h3>
+										<h3 class="text-white mb-2 fw-bolder text-center text-uppercase mb-6">@localizer["findBook"]</h3>
 										<!--end::Heading-->
 										<!--begin::Link-->
-										<a asp-controller="Search" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">Go To Books Finder</a>
+										<a asp-controller="Search" asp-action="Index" class="btn btn-hover-rise text-white bg-white bg-opacity-10 text-uppercase fs-7 fw-bold">@localizer["goToBooksFinder"]</a>
 										<!--end::Link-->
 									</div>
 									<!--end::Wrapper-->
@@ -99,7 +124,7 @@
 			<!--begin::Header-->
 			<div class="d-flex flex-stack mb-5 mb-lg-8" id="kt_sidebar_header">
 				<!--begin::Title-->
-				<h2 class="text-white">Newly Added Books</h2>
+				<h2 class="text-white">@localizer["newlyAddedBooks"]</h2>
 				<!--end::Title-->
 			</div>
 			<!--end::Header-->

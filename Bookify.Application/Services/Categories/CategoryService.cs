@@ -13,6 +13,11 @@ internal class CategoryService : ICategoryService
         return _unitOfWork.Categories.GetAll();
     }
 
+    public IEnumerable<CategoryDto> GetAll(string culture)
+    {
+        return _unitOfWork.Categories.GetAll(culture);
+    }
+
     public IEnumerable<Category> GetActiveCategories()
     {
         return _unitOfWork.Categories.FindAll(predicate: c => !c.IsDeleted, orderBy: c => c.Name, OrderBy.Ascending);
@@ -20,14 +25,25 @@ internal class CategoryService : ICategoryService
 
     public Category? GetById(int id)
     {
-        return _unitOfWork.Categories.GetById(id);
+        return _unitOfWork.Categories.GetQueryable()
+            .Include(c => c.Name)
+            .ThenInclude(n => n.Localizations)
+            .SingleOrDefault(c => c.Id == id);
     }
 
-    public Category Add(string name, string createdById)
+    public Category Add(IEnumerable<LocalizationDto> name, string createdById)
     {
         var category = new Category
         {
-            Name = name,
+            Name = new LocalizationSet
+            {
+                Reference = $"{nameof(Category)}_{nameof(Category.Name)}",
+                Localizations = name.Select(c => new Localization
+                {
+                    CultureCode = c.CultureCode,
+                    Value = c.Value
+                }).ToList()
+            },
             CreatedById = createdById
         };
 
@@ -37,14 +53,18 @@ internal class CategoryService : ICategoryService
         return category;
     }
 
-    public Category? Update(int id, string name, string updatedById)
+    public Category? Update(int id, IEnumerable<LocalizationDto> name, string updatedById)
     {
         var category = GetById(id);
 
         if (category is null)
             return null;
 
-        category.Name = name;
+        category.Name.Localizations = name.Select(c => new Localization
+        {
+            CultureCode = c.CultureCode,
+            Value = c.Value
+        }).ToList();
         category.LastUpdatedById = updatedById;
         category.LastUpdatedOn = DateTime.Now;
 
@@ -69,9 +89,11 @@ internal class CategoryService : ICategoryService
         return category;
     }
 
-    public bool AllowCategory(int id, string name)
+    public bool AllowCategory(int id, string name, string cultureCode)
     {
-        var category = _unitOfWork.Categories.Find(c => c.Name == name);
+        var category = _unitOfWork.Categories
+            .Find(c => c.Name.Localizations.Any(x => x.Value == name && x.CultureCode == cultureCode));
+
         return category is null || category.Id.Equals(id);
     }
 }

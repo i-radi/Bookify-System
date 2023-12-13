@@ -1,25 +1,40 @@
 ﻿@inject SignInManager<ApplicationUser> SignInManager
 
+@{
+    var isRTL = CultureInfo.CurrentCulture.Name.StartsWith("ar");
+    var currentLanguage = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="@(isRTL ? "rtl" : "ltr")" style="direction: @(isRTL ? "rtl" : "ltr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Bookify</title>
+    <title>@ViewData["Title"] - @localizer["title"]</title>
     <!--begin::Fonts-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Satisfy&display=swap">
     <!--end::Fonts-->
     <!--begin::Global Stylesheets Bundle(used by all pages)-->
+    @if (isRTL)
+    {
+        <link rel="stylesheet" href="~/assets/css/plugins.bundle.rtl.css" type="text/css" />
+        <link rel="stylesheet" href="~/assets/css/style.bundle.rtl.css" type="text/css" />
+    }
     <link rel="stylesheet" href="~/assets/css/plugins.bundle.css" type="text/css" />
     <link rel="stylesheet" href="~/assets/css/style.bundle.css" type="text/css" />
     <!--end::Global Stylesheets Bundle-->
     <link rel="stylesheet" href="~/lib/animate.css/animate.min.css" />
     @await RenderSectionAsync("Styles", required: false)
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @if (isRTL)
+    {
+        <link rel="stylesheet" href="~/css/site.rtl.css" asp-append-version="true" />
+    }
     <link rel="stylesheet" href="~/Bookify.Web.styles.css" asp-append-version="true" />
 </head>
 <body id="kt_body" class="header-fixed header-tablet-and-mobile-fixed page-loading">
+    <span id="CurrentLanguage" class="d-none">@currentLanguage</span>
     <!--begin::Theme mode setup on page load-->
     <script>var defaultThemeMode = "light"; var themeMode; if (document.documentElement) { if (document.documentElement.hasAttribute("data-theme-mode")) { themeMode = document.documentElement.getAttribute("data-theme-mode"); } else { if (localStorage.getItem("data-theme") !== null) { themeMode = localStorage.getItem("data-theme"); } else { themeMode = defaultThemeMode; } } if (themeMode === "system") { themeMode = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; } document.documentElement.setAttribute("data-theme", themeMode); }</script>
     <!--end::Theme mode setup on page load-->
@@ -95,6 +110,7 @@
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
     @await RenderSectionAsync("Plugins", required: false)
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/localization/@(currentLanguage).js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

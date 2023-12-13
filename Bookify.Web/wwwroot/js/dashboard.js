@@ -12,6 +12,61 @@ $(document).ready(function () {
     });
 });
 
+(function () {
+    // Check if jQuery included
+    if (typeof jQuery == 'undefined') {
+        return;
+    }
+
+    // Check if daterangepicker included
+    if (typeof $.fn.daterangepicker === 'undefined') {
+        return;
+    }
+
+    var elements = [].slice.call(document.querySelectorAll('[data-kt-daterangepicker="true"]'));
+    var start = moment().subtract(29, 'days');
+    var end = moment();
+
+    elements.map(function (element) {
+        if (element.getAttribute("data-kt-initialized") === "1") {
+            return;
+        }
+
+        var display = element.querySelector('div');
+        var attrOpens = element.hasAttribute('data-kt-daterangepicker-opens') ? element.getAttribute('data-kt-daterangepicker-opens') : 'left';
+        var range = element.getAttribute('data-kt-daterangepicker-range');
+
+        var cb = function (start, end) {
+            var current = moment();
+
+            if (display) {
+                if (current.isSame(start, "day") && current.isSame(end, "day")) {
+                    display.innerHTML = start.format('D MM YYYY');
+                } else {
+                    display.innerHTML = start.format('D MM YYYY') + ' - ' + end.format('D MM YYYY');
+                }
+            }
+        }
+
+        if (range === "today") {
+            start = moment();
+            end = moment();
+        }
+
+        $(element).daterangepicker({
+            startDate: start,
+            endDate: end,
+            opens: attrOpens,
+            locale: daterangePickerLocale,
+            ranges: daterangePickerRanges
+        }, cb);
+
+        cb(start, end);
+
+        element.setAttribute("data-kt-initialized", "1");
+    });
+})();
+
 drawRentalsChart();
 drawSubscribersChart();
 

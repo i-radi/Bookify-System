@@ -14,7 +14,8 @@
         autoUpdateInput: false,
         autoApply: true,
         minYear: 2020,
-        maxDate: new Date()
+        maxDate: new Date(),
+        locale: daterangePickerLocale
     });
 
     $('.js-date-range').on('apply.daterangepicker', function (ev, picker) {

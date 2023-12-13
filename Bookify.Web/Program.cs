@@ -1,6 +1,7 @@
 using Bookify.Application;
 using Bookify.Infrastructure;
 using Bookify.Web;
+using Bookify.Web.Middlewares;
 using Bookify.Web.Seeds;
 using Bookify.Web.Tasks;
 using Hangfire;
@@ -12,11 +13,14 @@ using Serilog.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var cultures = new[] { AppCultures.English, AppCultures.Arabic };
+
 // Add services to the container.
 builder.Services
     .AddApplicationServices()
     .AddInfrastructureServices(builder.Configuration)
-    .AddWebServices(builder);
+    .AddWebServices(builder)
+    .AddLocalizationConfigurations(cultures);
 
 //Add Serilog
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
@@ -53,6 +57,25 @@ app.UseStaticFiles();
 //});
 
 app.UseRouting();
+
+var localizationOptions = new RequestLocalizationOptions()
+    .AddSupportedCultures(cultures)
+    .AddSupportedUICultures(cultures);
+
+app.UseRequestLocalization(localizationOptions);
+
+app.UseRequestCulture();
+
+app.Use(async (context, next) =>
+{
+    var cultureInfo = Thread.CurrentThread.CurrentCulture.Clone() as CultureInfo;
+
+    cultureInfo!.DateTimeFormat = CultureInfo.GetCultureInfo(AppCultures.English).DateTimeFormat;
+    Thread.CurrentThread.CurrentCulture = cultureInfo;
+    Thread.CurrentThread.CurrentUICulture = cultureInfo;
+
+    await next();
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

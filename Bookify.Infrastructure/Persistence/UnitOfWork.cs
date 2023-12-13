@@ -15,7 +15,7 @@ internal class UnitOfWork : IUnitOfWork
     public IBookRepository Books => new BookRepository(_context);
     public IBaseRepository<BookCategory> BookCategories => new BaseRepository<BookCategory>(_context);
     public IBookCopyRepository BookCopies => new BookCopyRepository(_context);
-    public IBaseRepository<Category> Categories => new BaseRepository<Category>(_context);
+    public ICategoryRepository Categories => new CategoryRepository(_context);
     public IBaseRepository<Governorate> Governorates => new BaseRepository<Governorate>(_context);
     public IBaseRepository<Rental> Rentals => new BaseRepository<Rental>(_context);
     public IBaseRepository<RentalCopy> RentalCopies => new BaseRepository<RentalCopy>(_context);

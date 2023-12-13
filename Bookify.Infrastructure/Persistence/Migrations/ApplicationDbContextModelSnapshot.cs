@@ -375,10 +375,8 @@ namespace Bookify.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("LastUpdatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("NameId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -386,8 +384,7 @@ namespace Bookify.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("LastUpdatedById");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.HasIndex("NameId");
 
                     b.ToTable("Categories");
                 });
@@ -432,6 +429,41 @@ namespace Bookify.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Governorates");
+                });
+
+            modelBuilder.Entity("Bookify.Domain.Entities.Localization", b =>
+                {
+                    b.Property<int>("LocalizationSetId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CultureCode")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("LocalizationSetId", "CultureCode");
+
+                    b.ToTable("Localizations");
+                });
+
+            modelBuilder.Entity("Bookify.Domain.Entities.LocalizationSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LocalizationSets");
                 });
 
             modelBuilder.Entity("Bookify.Domain.Entities.Rental", b =>
@@ -892,9 +924,15 @@ namespace Bookify.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("LastUpdatedById");
 
+                    b.HasOne("Bookify.Domain.Entities.LocalizationSet", "Name")
+                        .WithMany()
+                        .HasForeignKey("NameId");
+
                     b.Navigation("CreatedBy");
 
                     b.Navigation("LastUpdatedBy");
+
+                    b.Navigation("Name");
                 });
 
             modelBuilder.Entity("Bookify.Domain.Entities.Governorate", b =>
@@ -910,6 +948,17 @@ namespace Bookify.Infrastructure.Persistence.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("LastUpdatedBy");
+                });
+
+            modelBuilder.Entity("Bookify.Domain.Entities.Localization", b =>
+                {
+                    b.HasOne("Bookify.Domain.Entities.LocalizationSet", "LocalizationSet")
+                        .WithMany("Localizations")
+                        .HasForeignKey("LocalizationSetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("LocalizationSet");
                 });
 
             modelBuilder.Entity("Bookify.Domain.Entities.Rental", b =>
@@ -1073,6 +1122,11 @@ namespace Bookify.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Bookify.Domain.Entities.Governorate", b =>
                 {
                     b.Navigation("Areas");
+                });
+
+            modelBuilder.Entity("Bookify.Domain.Entities.LocalizationSet", b =>
+                {
+                    b.Navigation("Localizations");
                 });
 
             modelBuilder.Entity("Bookify.Domain.Entities.Rental", b =>

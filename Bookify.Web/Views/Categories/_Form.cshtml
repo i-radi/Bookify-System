@@ -13,10 +13,16 @@
     }
     <div class="mb-5">
         <div class="form-floating mb-2">
-            <input type="text" class="form-control form-control-solid" placeholder="Name" asp-for="Name" />
-            <label asp-for="Name"></label>
+            <input type="text" class="form-control form-control-solid" placeholder="@localizer["categoryInEnglish"]" asp-for="NameInEnglish" />
+            <label asp-for="NameInEnglish"></label>
         </div>
-        <span asp-validation-for="Name" class="text-danger d-block"></span>
+        <span asp-validation-for="NameInEnglish" class="text-danger d-block"></span>
+
+        <div class="form-floating mb-2">
+            <input type="text" class="form-control form-control-solid" placeholder="@localizer["categoryInArabic"]" asp-for="NameInArabic" />
+            <label asp-for="NameInArabic"></label>
+        </div>
+        <span asp-validation-for="NameInArabic" class="text-danger d-block"></span>
     </div>
 
     <partial name="_ModalFooter" />

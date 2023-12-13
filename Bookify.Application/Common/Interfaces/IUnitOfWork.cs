@@ -8,7 +8,7 @@ public interface IUnitOfWork
     IBookRepository Books { get; }
     IBaseRepository<BookCategory> BookCategories { get; }
     IBookCopyRepository BookCopies { get; }
-    IBaseRepository<Category> Categories { get; }
+    ICategoryRepository Categories { get; }
     IBaseRepository<Governorate> Governorates { get; }
     IBaseRepository<Rental> Rentals { get; }
     IBaseRepository<RentalCopy> RentalCopies { get; }
